@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/csi4999-panic-button/panic-button.svg?branch=master)](https://travis-ci.org/csi4999-panic-button/panic-button)
+[![Build Status](https://travis-ci.org/csi4999-panic-button/panic-android.svg?branch=master)](https://travis-ci.org/csi4999-panic-button/panic-android)
 
 # Panic-Button
 
