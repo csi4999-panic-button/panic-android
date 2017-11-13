@@ -23,14 +23,15 @@ import java.util.ArrayList;
 
 public class ClassActionsActivity extends AppCompatActivity {
     private ListView listView;
-    private ArrayAdapter<String> arrayAdapter;
+    //private ArrayAdapter<ClassListView> arrayAdapter;
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String token, classId;
+    private String token;
     private JsonElement jsonElement;
     private JsonObject jsonObject;
     private ArrayList<String> classIds;
+    private ClassListView classObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +44,8 @@ public class ClassActionsActivity extends AppCompatActivity {
         token = "Bearer ".concat(token);
         classIds = new ArrayList<>();
         listView = (ListView) findViewById(R.id.listView_classesJoined);
-        arrayAdapter = new ArrayAdapter<>(this, R.layout.activity_list_view, classIds);
-        listView.setAdapter(arrayAdapter);
+        //arrayAdapter = new ArrayAdapter<ClassListView>(this, R.layout.activity_list_view, classObject);
+        //listView.setAdapter(arrayAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -75,7 +76,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     private void updateClassList(Context c){
         Ion.with(this)
                 .load("http://www.panic-button.stream/api/v1/classrooms")
-                .setHeader("Authorization", "Bearer c9a0094b7710ce5b12fe9e72a23df934a59007d826dac7622b770e08dc43870a13b03f7666e268e9072f8b67ad65d7f5")
+                .setHeader("Authorization", token)
                 .asJsonArray()
                 .setCallback(new FutureCallback<JsonArray>() {
                     @Override
@@ -87,13 +88,30 @@ public class ClassActionsActivity extends AppCompatActivity {
                             return;
                         }
                         Log.d("Ion","Generating classIds");
-                        arrayAdapter.clear();
-                        String classNewId;
+                        //arrayAdapter.clear();
+                        String classElement;
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
-                            classNewId = jsonObject.get("_id").toString();
-                            classNewId = classNewId.substring(1, classNewId.length() - 1);
-                            arrayAdapter.add(classNewId);
+                            classObject = new ClassListView();
+                            classElement = jsonObject.get("_id").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setClassId(classElement);
+                            classElement = jsonObject.get("schoolId").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setSchoolId(classElement);
+                            classElement = jsonObject.get("courseType").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setCourseType(classElement);
+                            classElement = jsonObject.get("courseNumber").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setCourseNumber(classElement);
+                            classElement = jsonObject.get("sectionNumber").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setSectionNumber(classElement);
+                            classElement = jsonObject.get("courseTitle").toString();
+                            classElement = classElement.substring(1, classElement.length() - 1);
+                            classObject.setCourseType(classElement);
+                            //arrayAdapter.add(classObject);
                         }
                         Log.d("Ion","Successfully generated classIds");
                     }
