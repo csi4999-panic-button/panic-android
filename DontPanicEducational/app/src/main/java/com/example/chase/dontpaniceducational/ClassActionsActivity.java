@@ -1,14 +1,18 @@
 package com.example.chase.dontpaniceducational;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +36,10 @@ public class ClassActionsActivity extends AppCompatActivity {
     private JsonObject jsonObject;
     private ArrayList<String> classIds;
     private ClassListView classObject;
+    private String[] t1 = {"test"};
+    private String[] t2 = {"test2"};
+    private String[] t3 = {"test3"};
+    //private CustomAdapter adapter = new CustomAdapter(t1, t2, t3);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +53,7 @@ public class ClassActionsActivity extends AppCompatActivity {
         classIds = new ArrayList<>();
         listView = (ListView) findViewById(R.id.listView_classesJoined);
         //arrayAdapter = new ArrayAdapter<ClassListView>(this, R.layout.activity_list_view, classObject);
-        //listView.setAdapter(arrayAdapter);
+        listView.setAdapter(new CustomAdapter(t1, t2, t3));
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -96,9 +104,9 @@ public class ClassActionsActivity extends AppCompatActivity {
                             classElement = jsonObject.get("_id").toString();
                             classElement = classElement.substring(1, classElement.length() - 1);
                             classObject.setClassId(classElement);
-                            classElement = jsonObject.get("schoolId").toString();
-                            classElement = classElement.substring(1, classElement.length() - 1);
-                            classObject.setSchoolId(classElement);
+                            //classElement = jsonObject.get("schoolId").toString();
+                            //classElement = classElement.substring(1, classElement.length() - 1);
+                            //classObject.setSchoolId(classElement);
                             classElement = jsonObject.get("courseType").toString();
                             classElement = classElement.substring(1, classElement.length() - 1);
                             classObject.setCourseType(classElement);
@@ -116,5 +124,58 @@ public class ClassActionsActivity extends AppCompatActivity {
                         Log.d("Ion","Successfully generated classIds");
                     }
                 });
+    }
+
+
+
+
+
+
+    public class CustomAdapter extends BaseAdapter {
+        private String[] courseType;
+        private String[] courseNumber;
+        private String[] courseTitle;
+
+        CustomAdapter() {
+            courseType = null;
+            courseNumber = null;
+            courseTitle = null;
+        }
+
+        public CustomAdapter(String[] textType, String[] textNumber, String[] textTitle) {
+            courseType = textType;
+            courseNumber = textNumber;
+            courseTitle = textTitle;
+        }
+
+        @Override
+        public int getCount() {
+            return courseType.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View row;
+            row = inflater.inflate(R.layout.list_row, parent, false);
+            TextView classType, classNumber, classTitle;
+            classType = (TextView) row.findViewById(R.id.classType);
+            classNumber = (TextView) row.findViewById(R.id.classNumber);
+            classTitle = (TextView) row.findViewById(R.id.classTitle);
+            classType.setText(courseType[position]);
+            classNumber.setText(courseNumber[position]);
+            classTitle.setText(courseTitle[position]);
+            return (row);
+        }
     }
 }
