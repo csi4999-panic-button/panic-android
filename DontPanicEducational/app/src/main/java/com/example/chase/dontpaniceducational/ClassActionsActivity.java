@@ -31,8 +31,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     private ArrayList<String> classIds;
     private ClassListView classObject;
     private ArrayList<ClassListView> classObjectsArray;
-    private ArrayList<String> courseTypeArray, courseNumberArray, courseTitleArray;
-    private ArrayList<String> emptyArrayList = new ArrayList<>(1);
+    private ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray;
     private CustomAdapter adapter;
 
     @Override
@@ -59,7 +58,7 @@ public class ClassActionsActivity extends AppCompatActivity {
         classObjectsArray = new ArrayList<>();
         courseTypeArray = new ArrayList<>();
         courseNumberArray = new ArrayList<>();
-        courseTitleArray = new ArrayList<>();
+        classTitleArray = new ArrayList<>();
     }
 
     @Override
@@ -94,7 +93,6 @@ public class ClassActionsActivity extends AppCompatActivity {
                         }
                         Log.d("Ion", "Generating classIds");
                         String classElement;
-                        emptyArrayList.add("");
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
                             classObject = new ClassListView();
@@ -137,7 +135,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                             classObjectsArray.add(classObject);
                             courseTypeArray.add(classObject.getCourseType());
                             courseNumberArray.add(classObject.getCourseNumber());
-                            courseTitleArray.add(classObject.getCourseTitle());
+                            classTitleArray.add(classObject.getCourseTitle());
                         }
                         adapter = new CustomAdapter(classObjectsArray);
                         listView.setAdapter(adapter);
