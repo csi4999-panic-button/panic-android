@@ -34,8 +34,9 @@ before_script:
   - cd DontPanicEducational
   - chmod +x ./gradlew
   # Emulator Management: Create, Start and Wait
-  - android list target
-  - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+  - android list sdk --extended --no-ui --all
+  - echo "y" | android update sdk -a --no-ui --filter sys-img-armeabi-v7a-android-25,sys-img-x86_64-android-25
+  - echo "n" | android create avd --force -n test -t android-25 --abi x86_64
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
