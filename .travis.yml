@@ -24,7 +24,7 @@ env:
   global:
    # lengthen the install timeout to 8 minutes vs default 2
     - ADB_INSTALL_TIMEOUT=8
-    - SDK26_BIN=/usr/local/android-sdk-26.0.2/tools/bin
+    - SDK_BUILD_TOOLS=/usr/local/android-sdk/build-tools/
 
 before_install:
   - echo "$ANDROID_HOME"
@@ -48,7 +48,6 @@ script:
 
 after_success:
   - apksigner --help
-  - $SDK26_BIN/apksigner --help
-  - ls -al $SDK26_BIN
-  - ls -al /usr/local/
-  - ls -al /usr/local/android-*/
+  - echo $SDK_BUILD_TOOLS
+  - ls -al $SDK_BUILD_TOOLS
+  - ls -al $SDK_BUILD_TOOLS/*
