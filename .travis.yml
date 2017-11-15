@@ -1,14 +1,24 @@
 language: android
+jdk: oraclejdk8
+sudo: false
+os:
+  - linux
 
 android:
   components:
-    # Uncomment the lines below if you want to
-    # use the latest revision of Android SDK Tools
     - tools
+    - build-tools-26.0.2
     - platform-tools
+  
+  licenses:
+    - 'android-sdk-license-.+'
 
-    # The BuildTools version used by your project
-    - build-tools-19.1.0
 
-    # The SDK version used to compile your project
-    - android-22
+before_install:
+  - echo "$ANDROID_HOME"
+  - cp -r DontPanicEducational/licenses $ANDROID_HOME/
+
+before_script: 
+  - cd DontPanicEducational
+  - chmod +x ./gradlew
+  
