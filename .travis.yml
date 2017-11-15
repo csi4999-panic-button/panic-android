@@ -7,7 +7,7 @@ os:
 android:
   components:
     # build components
-    - tools
+    #- tools
     - build-tools-26.0.2
     #- platform-tools
     # additional components to emulator device
