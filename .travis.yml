@@ -24,11 +24,14 @@ env:
   global:
    # lengthen the install timeout to 8 minutes vs default 2
     - ADB_INSTALL_TIMEOUT=8
-    - SDK_BUILD_TOOLS=/usr/local/android-sdk/build-tools/
+    - BT=${ANDROID_HOME}/build-tools/26.0.2
+    - APK_DIR=app/build/outputs/apk/release
+    - APK_NAME=app-release-unsigned.apk
+    - FINAL_APK=dont-panic.apk
 
 before_install:
-  - echo "$ANDROID_HOME"
-  - cp -r DontPanicEducational/licenses $ANDROID_HOME/
+  - echo "${ANDROID_HOME}"
+  - cp -r DontPanicEducational/licenses ${ANDROID_HOME}/
 
 before_script: 
   # get gradle builder ready
@@ -47,7 +50,6 @@ script:
   - ./gradlew assembleRelease
 
 after_success:
-  - apksigner --help
-  - echo $SDK_BUILD_TOOLS
-  - ls -al $SDK_BUILD_TOOLS
-  - ls -al $SDK_BUILD_TOOLS/*
+  - ${BT}/zipalign -v -p 4 ${APK_DIR}/${APK_NAME} ${APK_NAME}
+  - ${BT}/apksigner sign --ks ../dpk --ks-pass env:KEY_PASS --out ${FINAL_APK} ${APK_NAME}
+  - ${BT}/apksigner verify ${FINAL_APK}
