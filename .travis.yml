@@ -33,6 +33,7 @@ before_script:
   - cd DontPanicEducational
   - chmod +x ./gradlew
   # Emulator Management: Create, Start and Wait
+  - android list target
   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
