@@ -51,5 +51,5 @@ script:
 
 after_success:
   - ${BT}/zipalign -v -p 4 ${APK_DIR}/${APK_NAME} ${APK_NAME}
-  - ${BT}/apksigner sign --ks ../dpk --ks-pass env:KEY_PASS --out ${FINAL_APK} ${APK_NAME}
-  - ${BT}/apksigner verify ${FINAL_APK}
+  - ${BT}/apksigner sign -v --ks ../dpk --ks-pass env:KEY_PASS --out ${FINAL_APK} ${APK_NAME}
+  - ${BT}/apksigner verify -v ${FINAL_APK}
