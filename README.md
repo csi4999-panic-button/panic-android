@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/csi4999-panic-button/panic-android.svg?branch=master)](https://travis-ci.org/csi4999-panic-button/panic-android)
 
-# Panic-Button
+# Panic-Android
 
-An easier, modern approach to classroom dynamics to enable both students and teachers.
+An easier, modern approach to classroom dynamics to enable both students and teachers. This repository contains the source code to our Android front-end for the Don't Panic service
 
 # Installing the Android App
 
