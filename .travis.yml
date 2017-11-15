@@ -6,19 +6,38 @@ os:
 
 android:
   components:
+    # build components
     - tools
     - build-tools-26.0.2
     - platform-tools
+    # additional components to emulator device
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
+    - sys-img-armeabi-v7a-android-21
   
   licenses:
     - 'android-sdk-license-.+'
 
+env:
+  global:
+   # lengthen the install timeout to 8 minutes vs default 2
+    - ADB_INSTALL_TIMEOUT=8
 
 before_install:
   - echo "$ANDROID_HOME"
   - cp -r DontPanicEducational/licenses $ANDROID_HOME/
 
 before_script: 
+  # get gradle builder ready
   - cd DontPanicEducational
   - chmod +x ./gradlew
-  
+  # Emulator Management: Create, Start and Wait
+  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
+script:
+  - android list target
+  - ./gradlew build connectedCheck
