@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class ClassListView {
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
-    private ArrayList<String> questions, students, teacherAssistants, teachers;
+    //private ArrayList<String> questions, students, teacherAssistants, teachers;
 
     public ClassListView() {}
 
@@ -57,7 +57,7 @@ public class ClassListView {
         this.courseTitle = courseTitle;
     }
 
-    public ArrayList<String> getQuestions() {
+    /*public ArrayList<String> getQuestions() {
         return questions;
     }
 
@@ -72,6 +72,7 @@ public class ClassListView {
     public void setStudents(final ArrayList<String> students) {
         this.students.addAll(students);
     }
+
     public ArrayList<String> getTeacherAssistants() {
         return teacherAssistants;
     }
@@ -86,5 +87,5 @@ public class ClassListView {
 
     public void setTeachers(final ArrayList<String> teachers) {
         this.teachers.addAll(teachers);
-    }
+    }*/
 }
