@@ -1,11 +1,13 @@
+package com.example.chase.dontpaniceducational;
+
 import java.util.ArrayList;
 
 public class ClassListView {
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
-    private ArrayList<String> questions, students, teacherAssistants, teachers;
+    //private ArrayList<String> questions, students, teacherAssistants, teachers;
 
-    public ClassListView(){}
+    public ClassListView() {}
 
     public String getClassId() {
         return classId;
@@ -55,7 +57,7 @@ public class ClassListView {
         this.courseTitle = courseTitle;
     }
 
-    public ArrayList<String> getQuestions() {
+    /*public ArrayList<String> getQuestions() {
         return questions;
     }
 
@@ -66,4 +68,24 @@ public class ClassListView {
     public ArrayList<String> getStudents() {
         return students;
     }
+
+    public void setStudents(final ArrayList<String> students) {
+        this.students.addAll(students);
+    }
+
+    public ArrayList<String> getTeacherAssistants() {
+        return teacherAssistants;
+    }
+
+    public void setTeacherAssistants(final ArrayList<String> teacherAssistants) {
+        this.teacherAssistants.addAll(teacherAssistants);
+    }
+
+    public ArrayList<String> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(final ArrayList<String> teachers) {
+        this.teachers.addAll(teachers);
+    }*/
 }
