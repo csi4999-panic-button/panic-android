@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -29,8 +28,8 @@ public class ClassActionsActivity extends AppCompatActivity {
     private String token;
     private JsonObject jsonObject;
     private ArrayList<String> classIds;
-    private ClassListView classObject;
-    private ArrayList<ClassListView> classObjectsArray;
+    private Classes classObject;
+    private ArrayList<Classes> classObjectsArray;
     private ArrayList<String> courseTypeArray, courseNumberArray, courseTitleArray;
     private ArrayList<String> emptyArrayList = new ArrayList<>(1);
     private CustomAdapter adapter;
@@ -39,6 +38,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
+        getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         final SharedPreferences.Editor editor = mySharedPreferences.edit();
         token = mySharedPreferences.getString("token", null);
@@ -51,6 +51,8 @@ public class ClassActionsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 classObject = classObjectsArray.get(i);
                 editor.putString("classroom", classObject.getClassId());
+                editor.putString("courseType", classObject.getCourseType());
+                editor.putString("courseNumber", classObject.getCourseNumber());
                 editor.commit();
                 Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
                 startActivity(intent);
@@ -97,7 +99,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                         emptyArrayList.add("");
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
-                            classObject = new ClassListView();
+                            classObject = new Classes();
                             if (jsonObject.has("_id")) {
                                 classElement = jsonObject.get("_id").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
@@ -157,8 +159,8 @@ public class ClassActionsActivity extends AppCompatActivity {
             courseNumber.clear();
         }
 
-        public CustomAdapter(ArrayList<ClassListView> classList) {
-            for (ClassListView classes : classList) {
+        public CustomAdapter(ArrayList<Classes> classList) {
+            for (Classes classes : classList) {
                 courseTitle.add(classes.getCourseTitle());
                 courseType.add(classes.getCourseType());
                 courseNumber.add(classes.getCourseNumber());

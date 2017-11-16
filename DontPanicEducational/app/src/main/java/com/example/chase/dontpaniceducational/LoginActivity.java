@@ -28,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        getSupportActionBar().setTitle("Login");
         loginUsername = (EditText) findViewById(R.id.editText_login);
         loginPassword = (EditText) findViewById(R.id.editText_passwordLogin);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);

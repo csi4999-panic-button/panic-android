@@ -2,12 +2,12 @@ package com.example.chase.dontpaniceducational;
 
 import java.util.ArrayList;
 
-public class ClassListView {
+public class Classes {
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
     //private ArrayList<String> questions, students, teacherAssistants, teachers;
 
-    public ClassListView() {}
+    public Classes() {}
 
     public String getClassId() {
         return classId;
