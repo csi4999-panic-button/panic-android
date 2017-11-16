@@ -24,17 +24,23 @@ public class PanicRoomActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String classroom, token, apiToken;
+    private String classroom, token, apiToken, actionBar;
     private JsonObject jsonObject;
     private boolean panicState;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_room);
+        mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        actionBar = mySharedPreferences.getString("courseType", null);
+        actionBar = actionBar.concat(" ");
+        actionBar = actionBar.concat(mySharedPreferences.getString("courseNumber", null));
+        getSupportActionBar().setTitle(actionBar);
         {
             try {
-                panicSocket = IO.socket("http://www.panic-button.stream");
+                panicSocket = IO.socket(request.website());
             } catch(URISyntaxException e){
                 e.printStackTrace();
             }
@@ -121,8 +127,6 @@ public class PanicRoomActivity extends AppCompatActivity {
         panicState = !panicState;
         jsonObject.addProperty("classroom", classroom);
         jsonObject.addProperty("state", panicState);
-        Log.d("Socket.IO", "Trying to emit:");
         panicSocket.emit("panic", jsonObject);
-        Log.d("Socket.IO", "Done emitting");
     }
 }

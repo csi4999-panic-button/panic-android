@@ -11,16 +11,18 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-public class SignUpActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
     private EditText signUpFirstName, signUpLastName, signUpEmail, signUpPassword;
     public static String MY_PREFS = "MY_PREFS";
     private SharedPreferences mySharedPreferences;
-    int prefMode = SignUpActivity.MODE_PRIVATE;
+    int prefMode = RegisterActivity.MODE_PRIVATE;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up);
+        setContentView(R.layout.activity_register);
+        getSupportActionBar().setTitle("Register");
         signUpFirstName = (EditText) findViewById(R.id.editText_firstNameSignUp);
         signUpLastName = (EditText) findViewById(R.id.editText_lastNameSignUp);
         signUpEmail = (EditText) findViewById(R.id.editText_emailAddressSignUp);
@@ -45,22 +47,22 @@ public class SignUpActivity extends AppCompatActivity {
         json.addProperty("firstName", stringFirstName);
         json.addProperty("lastName", stringLastName);
         Ion.with(this)
-                .load("http://www.panic-button.stream/register")
+                .load(request.register())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         if (e != null || !result.has("apiToken")) {
-                            Toast.makeText(SignUpActivity.this, "Your email or password are not valid. Try again",
+                            Toast.makeText(RegisterActivity.this, "Your email or password are not valid. Try again",
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
                         SharedPreferences.Editor editor = mySharedPreferences.edit();
                         editor.putString("apiToken", result.get("apiToken").toString());
                         editor.commit();
-                        Toast.makeText(SignUpActivity.this, result.get("apiToken").toString(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(SignUpActivity.this, ClassActionsActivity.class);
+                        Toast.makeText(RegisterActivity.this, result.get("apiToken").toString(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(RegisterActivity.this, ClassActionsActivity.class);
                         startActivity(intent);
                     }
                 });

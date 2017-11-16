@@ -13,6 +13,7 @@ import com.koushikdutta.ion.Ion;
 
 public class JoinClassActivity extends AppCompatActivity {
     private EditText classroom;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +27,7 @@ public class JoinClassActivity extends AppCompatActivity {
         JsonObject json = new JsonObject();
         json.addProperty("inviteCode", classCode);
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/classrooms/join")
+                .load(request.joinClassroom())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {

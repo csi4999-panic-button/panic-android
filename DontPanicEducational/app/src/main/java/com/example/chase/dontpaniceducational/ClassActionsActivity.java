@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -29,15 +28,24 @@ public class ClassActionsActivity extends AppCompatActivity {
     private String token;
     private JsonObject jsonObject;
     private ArrayList<String> classIds;
+<<<<<<< HEAD
     private ClassListView classObject;
     private ArrayList<ClassListView> classObjectsArray;
     private ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray;
+=======
+    private Classes classObject;
+    private ArrayList<Classes> classObjectsArray;
+    private ArrayList<String> courseTypeArray, courseNumberArray, courseTitleArray;
+    private ArrayList<String> emptyArrayList = new ArrayList<>(1);
+>>>>>>> cd7dce6b9a4fe8993b8fe825d2c9245b364e8fcd
     private CustomAdapter adapter;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
+        getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         final SharedPreferences.Editor editor = mySharedPreferences.edit();
         token = mySharedPreferences.getString("token", null);
@@ -50,6 +58,8 @@ public class ClassActionsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 classObject = classObjectsArray.get(i);
                 editor.putString("classroom", classObject.getClassId());
+                editor.putString("courseType", classObject.getCourseType());
+                editor.putString("courseNumber", classObject.getCourseNumber());
                 editor.commit();
                 Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
                 startActivity(intent);
@@ -79,7 +89,7 @@ public class ClassActionsActivity extends AppCompatActivity {
 
     private void updateClassList(Context c) {
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/classrooms")
+                .load(request.classrooms())
                 .setHeader("Authorization", token)
                 .asJsonArray()
                 .setCallback(new FutureCallback<JsonArray>() {
@@ -95,7 +105,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                         String classElement;
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
-                            classObject = new ClassListView();
+                            classObject = new Classes();
                             if (jsonObject.has("_id")) {
                                 classElement = jsonObject.get("_id").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
@@ -155,8 +165,8 @@ public class ClassActionsActivity extends AppCompatActivity {
             courseNumber.clear();
         }
 
-        public CustomAdapter(ArrayList<ClassListView> classList) {
-            for (ClassListView classes : classList) {
+        public CustomAdapter(ArrayList<Classes> classList) {
+            for (Classes classes : classList) {
                 courseTitle.add(classes.getCourseTitle());
                 courseType.add(classes.getCourseType());
                 courseNumber.add(classes.getCourseNumber());

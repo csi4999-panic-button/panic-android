@@ -13,7 +13,7 @@ public class StartScreenActivity extends AppCompatActivity {
     }
 
     public void signUp(View view) {
-        Intent intent = new Intent(this, SignUpActivity.class);
+        Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
     }
 

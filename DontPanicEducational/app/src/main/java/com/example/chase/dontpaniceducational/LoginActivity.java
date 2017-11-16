@@ -23,11 +23,13 @@ public class LoginActivity extends AppCompatActivity {
     int prefMode = CreateClassActivity.MODE_PRIVATE;
     String username, password;
     Ion ion;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        getSupportActionBar().setTitle("Login");
         loginUsername = (EditText) findViewById(R.id.editText_login);
         loginPassword = (EditText) findViewById(R.id.editText_passwordLogin);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
@@ -52,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         json.addProperty("email",username);
         json.addProperty("password",password);
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/authenticate")
+                .load(request.authenticate())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
