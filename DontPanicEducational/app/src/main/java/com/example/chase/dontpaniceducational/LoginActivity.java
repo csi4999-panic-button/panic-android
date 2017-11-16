@@ -23,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     int prefMode = CreateClassActivity.MODE_PRIVATE;
     String username, password;
     Ion ion;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         json.addProperty("email",username);
         json.addProperty("password",password);
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/authenticate")
+                .load(request.authenticate())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {

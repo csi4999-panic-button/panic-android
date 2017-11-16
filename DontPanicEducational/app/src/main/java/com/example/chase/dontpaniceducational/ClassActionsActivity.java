@@ -33,6 +33,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     private ArrayList<String> courseTypeArray, courseNumberArray, courseTitleArray;
     private ArrayList<String> emptyArrayList = new ArrayList<>(1);
     private CustomAdapter adapter;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,7 @@ public class ClassActionsActivity extends AppCompatActivity {
 
     private void updateClassList(Context c) {
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/classrooms")
+                .load(request.classrooms())
                 .setHeader("Authorization", token)
                 .asJsonArray()
                 .setCallback(new FutureCallback<JsonArray>() {

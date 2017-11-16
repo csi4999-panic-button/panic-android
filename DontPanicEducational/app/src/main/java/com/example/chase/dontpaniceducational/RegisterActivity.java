@@ -16,6 +16,7 @@ public class RegisterActivity extends AppCompatActivity {
     public static String MY_PREFS = "MY_PREFS";
     private SharedPreferences mySharedPreferences;
     int prefMode = RegisterActivity.MODE_PRIVATE;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
         json.addProperty("firstName", stringFirstName);
         json.addProperty("lastName", stringLastName);
         Ion.with(this)
-                .load("http://www.panic-button.stream/register")
+                .load(request.register())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
