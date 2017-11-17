@@ -24,7 +24,7 @@ public class PanicRoomActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String classroom, token, apiToken, actionBar;
+    private String classroom, token, apiToken;
     private JsonObject jsonObject;
     private boolean panicState;
     private RestRequests request = new RestRequests();
@@ -34,10 +34,6 @@ public class PanicRoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_room);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        actionBar = mySharedPreferences.getString("courseType", null);
-        actionBar = actionBar.concat(" ");
-        actionBar = actionBar.concat(mySharedPreferences.getString("courseNumber", null));
-        getSupportActionBar().setTitle(actionBar);
         {
             try {
                 panicSocket = IO.socket(request.website());

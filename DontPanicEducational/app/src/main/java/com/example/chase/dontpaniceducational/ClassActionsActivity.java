@@ -3,10 +3,17 @@ package com.example.chase.dontpaniceducational;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,6 +21,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
@@ -28,24 +36,38 @@ public class ClassActionsActivity extends AppCompatActivity {
     private String token;
     private JsonObject jsonObject;
     private ArrayList<String> classIds;
-<<<<<<< HEAD
-    private ClassListView classObject;
-    private ArrayList<ClassListView> classObjectsArray;
-    private ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray;
-=======
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
-    private ArrayList<String> courseTypeArray, courseNumberArray, courseTitleArray;
-    private ArrayList<String> emptyArrayList = new ArrayList<>(1);
->>>>>>> cd7dce6b9a4fe8993b8fe825d2c9245b364e8fcd
+    private ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray;
     private CustomAdapter adapter;
     private RestRequests request = new RestRequests();
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle barDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
-        getSupportActionBar().setTitle("Classrooms");
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.button_joinClass, R.string.button_register);
+        barDrawerToggle.setDrawerIndicatorEnabled(true);
+        drawerLayout.addDrawerListener(barDrawerToggle);
+        barDrawerToggle.syncState();
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        NavigationView nav_view = (NavigationView) findViewById(R.id.navView);
+        nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if(id == R.id.account)
+                    Toast.makeText(ClassActionsActivity.this, "Test", Toast.LENGTH_SHORT).show();
+                else if(id == R.id.logout)
+                    Toast.makeText(ClassActionsActivity.this, "Test", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         final SharedPreferences.Editor editor = mySharedPreferences.edit();
         token = mySharedPreferences.getString("token", null);
@@ -69,6 +91,15 @@ public class ClassActionsActivity extends AppCompatActivity {
         courseTypeArray = new ArrayList<>();
         courseNumberArray = new ArrayList<>();
         classTitleArray = new ArrayList<>();
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(barDrawerToggle.onOptionsItemSelected(item))
+            return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
