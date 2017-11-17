@@ -49,7 +49,7 @@ public class ClassActionsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-        barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.button_joinClass, R.string.button_register);
+        barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.syncState();
@@ -60,14 +60,15 @@ public class ClassActionsActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 if(id == R.id.account)
-                    Toast.makeText(ClassActionsActivity.this, "Test", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ClassActionsActivity.this, "Success", Toast.LENGTH_SHORT).show();
                 else if(id == R.id.logout)
-                    Toast.makeText(ClassActionsActivity.this, "Test", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ClassActionsActivity.this, "Success", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setTitle("Classrooms");
+        getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         final SharedPreferences.Editor editor = mySharedPreferences.edit();
         token = mySharedPreferences.getString("token", null);
@@ -97,9 +98,7 @@ public class ClassActionsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(barDrawerToggle.onOptionsItemSelected(item))
-            return true;
-        return super.onOptionsItemSelected(item);
+        return barDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     @Override

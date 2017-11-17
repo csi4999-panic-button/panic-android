@@ -38,4 +38,6 @@
     <string name="joinClass">Invite Code</string>
     <string name="panicButton">Panic!</string>
     <string name="panickedStudents">Number of panicked students:</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>
