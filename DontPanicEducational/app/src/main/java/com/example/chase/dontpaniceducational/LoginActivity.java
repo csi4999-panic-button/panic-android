@@ -34,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         ion = Ion.getDefault(LoginActivity.this);
         ion.getCookieMiddleware().clear();
+        getSupportActionBar().setTitle("Login");
     }
 
     public void clearFieldsLogin(View view) {

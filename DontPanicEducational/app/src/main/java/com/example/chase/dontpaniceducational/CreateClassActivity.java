@@ -28,6 +28,7 @@ public class CreateClassActivity extends AppCompatActivity {
         classSectionNumber = (EditText) findViewById(R.id.editText_sectionNumber);
         classCourseTitle = (EditText) findViewById(R.id.editText_courseTitle);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        getSupportActionBar().setTitle("Create Class");
     }
 
     public void createClassClick(View view) {

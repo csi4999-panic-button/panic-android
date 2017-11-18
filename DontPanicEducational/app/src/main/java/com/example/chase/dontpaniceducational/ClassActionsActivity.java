@@ -3,7 +3,9 @@ package com.example.chase.dontpaniceducational;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,17 +47,52 @@ public class ClassActionsActivity extends AppCompatActivity {
     private RestRequests request = new RestRequests();
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle barDrawerToggle;
+    private FloatingActionButton optionsButton, joinClassButton, createClassButton;
+    private LinearLayout joinLayout, createLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
+        optionsButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        joinClassButton = (FloatingActionButton) findViewById(R.id.floatingActionButtonJoinClass);
+        createClassButton = (FloatingActionButton) findViewById(R.id.floatingActionButtonCreateClass);
+        joinLayout = (LinearLayout) findViewById(R.id.layoutJoinClass);
+        createLayout = (LinearLayout) findViewById(R.id.layoutCreateClass);
+        joinLayout.setVisibility(View.GONE);
+        createLayout.setVisibility(View.GONE);
+        optionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(joinLayout.getVisibility() == View.VISIBLE &&
+                        createLayout.getVisibility() == View.VISIBLE) {
+                    joinLayout.setVisibility(View.GONE);
+                    createLayout.setVisibility(View.GONE);
+                } else {
+                    joinLayout.setVisibility(View.VISIBLE);
+                    createLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        joinClassButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ClassActionsActivity.this, JoinClassActivity.class);
+                startActivity(intent);
+            }
+        });
+        createClassButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ClassActionsActivity.this, CreateClassActivity.class);
+                startActivity(intent);
+            }
+        });
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.syncState();
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         NavigationView nav_view = (NavigationView) findViewById(R.id.navView);
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -66,7 +105,6 @@ public class ClassActionsActivity extends AppCompatActivity {
                 return true;
             }
         });
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
@@ -94,8 +132,6 @@ public class ClassActionsActivity extends AppCompatActivity {
         classTitleArray = new ArrayList<>();
     }
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return barDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
@@ -107,14 +143,11 @@ public class ClassActionsActivity extends AppCompatActivity {
         updateClassList(this);
     }
 
-    public void createClass(View view) {
-        Intent intent = new Intent(this, CreateClassActivity.class);
-        startActivity(intent);
-    }
-
-    public void joinClass(View view) {
-        Intent intent = new Intent(this, JoinClassActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        joinLayout.setVisibility(View.GONE);
+        createLayout.setVisibility(View.GONE);
     }
 
     private void updateClassList(Context c) {

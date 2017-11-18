@@ -27,6 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
         signUpEmail = (EditText) findViewById(R.id.editText_emailAddressSignUp);
         signUpPassword = (EditText) findViewById(R.id.editText_passwordSignUp);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        getSupportActionBar().setTitle("Register");
     }
 
     public void userInfo(View view) {
