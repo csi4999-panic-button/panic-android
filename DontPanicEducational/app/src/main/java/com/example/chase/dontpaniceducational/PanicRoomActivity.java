@@ -114,11 +114,9 @@ public class PanicRoomActivity extends AppCompatActivity {
         }
 
         @Override
-        public void clear() {
-
-        }
+        public void clear() {}
     };
-    private ArrayList questionArray = new ArrayList();
+    private ArrayList questionArray = new ArrayList(), numberOfAnswersArray = new ArrayList();
     private Button panicButton;
 
     @Override
@@ -186,7 +184,9 @@ public class PanicRoomActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             }
         });
-        questionArray.addAll(mySharedPreferences.getStringSet("questions", null));
+        TinyDB tinyDB = new TinyDB(this);
+        questionArray.addAll(tinyDB.getListString("questions"));
+        numberOfAnswersArray.addAll(tinyDB.getListString("answers"));
         panicButton = (Button) findViewById(R.id.button_panicButton);
     }
 
@@ -270,7 +270,7 @@ public class PanicRoomActivity extends AppCompatActivity {
                         return;
                     }
                     questionArray.add(questionString);
-                    adapter = new PanicRoomActivity.CustomAdapter(questionArray);
+                    adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
                     listView.setAdapter(adapter);
                 }
             });
@@ -284,7 +284,7 @@ public class PanicRoomActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        adapter = new PanicRoomActivity.CustomAdapter(questionArray);
+        adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
         listView.setAdapter(adapter);
     }
 
@@ -305,13 +305,16 @@ public class PanicRoomActivity extends AppCompatActivity {
 
     public class CustomAdapter extends BaseAdapter {
         private ArrayList<String> questions = new ArrayList<>();
+        private ArrayList<String> numberOfAnswersAdapter = new ArrayList<>();
 
         CustomAdapter() {
             questions.clear();
+            numberOfAnswersAdapter.clear();
         }
 
-        public CustomAdapter(ArrayList<String> questionList) {
+        public CustomAdapter(ArrayList<String> questionList, ArrayList<String> numAnswers) {
             questions.addAll(questionList);
+            numberOfAnswersAdapter.addAll(numAnswers);
         }
 
         @Override
@@ -334,9 +337,11 @@ public class PanicRoomActivity extends AppCompatActivity {
             LayoutInflater inflater = getLayoutInflater();
             View row;
             row = inflater.inflate(R.layout.question_list_row, parent, false);
-            TextView questionText;
+            TextView questionText, numberOfAnswersTV;
             questionText = (TextView) row.findViewById(R.id.question);
+            numberOfAnswersTV = (TextView) row.findViewById(R.id.numberOfAnswersTextView);
             questionText.setText(questions.get(position));
+            numberOfAnswersTV.setText(numberOfAnswersAdapter.get(position));
             return (row);
         }
     }

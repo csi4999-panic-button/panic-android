@@ -22,7 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -36,11 +35,12 @@ public class ClassActionsActivity extends AppCompatActivity {
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String token;
-    private JsonObject jsonObject, jsonQuestion;
+    private JsonObject jsonObject, jsonQuestion, jsonAnswer;
     private ArrayList<String> classIds;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
-    ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray;
+    ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray, answerArrayString;
+    ArrayList<Integer> answerArrayInt;
     private CustomAdapter adapter;
     private RestRequests request = new RestRequests();
     DrawerLayout drawerLayout;
@@ -117,12 +117,15 @@ public class ClassActionsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 classObject = classObjectsArray.get(i);
-                Set<String> questionSet = new HashSet<>(classObject.getQuestions());
+                TinyDB tinyDB = new TinyDB(ClassActionsActivity.this);
+                for(Integer answer : classObject.getAnswers())
+                    answerArrayString.add(answer.toString());
                 editor.putString("classroom", classObject.getClassId());
                 editor.putString("courseType", classObject.getCourseType());
                 editor.putString("courseNumber", classObject.getCourseNumber());
-                editor.putStringSet("questions", questionSet);
                 editor.commit();
+                tinyDB.putListString("questions", classObject.getQuestions());
+                tinyDB.putListString("answers", answerArrayString);
                 Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
                 startActivity(intent);
             }
@@ -132,6 +135,9 @@ public class ClassActionsActivity extends AppCompatActivity {
         courseNumberArray = new ArrayList<>();
         classTitleArray = new ArrayList<>();
         questionsArray = new ArrayList<>();
+        answerArrayInt = new ArrayList<>();
+        jsonAnswer = new JsonObject();
+        answerArrayString = new ArrayList<>();
     }
 
     @Override
@@ -215,9 +221,11 @@ public class ClassActionsActivity extends AppCompatActivity {
                                 classElementArray = jsonObject.getAsJsonArray("questions");
                                 for(int j = 0; j < classElementArray.size(); j++) {
                                     jsonQuestion = classElementArray.get(j).getAsJsonObject();
+                                    answerArrayInt.add(jsonQuestion.getAsJsonArray("answers").size());
                                     questionsArray.add(jsonQuestion.get("question").toString());
                                 }
                                 classObject.setQuestions(questionsArray);
+                                classObject.setAnswers(answerArrayInt);
                                 classObjectsArray.add(classObject);
                                 courseTypeArray.add(classObject.getCourseType());
                                 courseNumberArray.add(classObject.getCourseNumber());
@@ -225,6 +233,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                                 break;
                             }
                             classObject.setQuestions(questionsArray);
+                            classObject.setAnswers(answerArrayInt);
                             classObjectsArray.add(classObject);
                             courseTypeArray.add(classObject.getCourseType());
                             courseNumberArray.add(classObject.getCourseNumber());

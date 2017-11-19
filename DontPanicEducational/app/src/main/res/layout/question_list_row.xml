@@ -5,22 +5,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:rowCount="1"
+        android:columnCount="2">
 
         <TextView
             android:id="@+id/question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/icons"/>
+            android:textColor="@color/icons"
+            android:layout_row="0"
+            android:layout_column="0"/>
 
         <TextView
-            android:id="@+id/numberOfAnswers"
+            android:id="@+id/numberOfAnswersTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/icons"/>
-    </LinearLayout>
+            android:background="@color/colorPrimaryText"
+            android:textColor="@color/icons"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:layout_gravity="end"/>
+    </GridLayout>
 
 </LinearLayout>

@@ -8,6 +8,7 @@ public class Classes {
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
     private ArrayList questions = new ArrayList();
+    private ArrayList answers = new ArrayList();
     //, students, teacherAssistants, teachers;
 
     public Classes() {}
@@ -66,6 +67,14 @@ public class Classes {
 
     public void setQuestions(final ArrayList questions) {
         this.questions.addAll(questions);
+    }
+
+    public ArrayList<Integer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(final ArrayList answers) {
+        this.answers.addAll(answers);
     }
 
     /*public ArrayList<String> getStudents() {
