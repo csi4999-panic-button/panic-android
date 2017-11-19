@@ -2,6 +2,7 @@ package com.example.chase.dontpaniceducational;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -9,9 +10,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,22 +27,99 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 public class PanicRoomActivity extends AppCompatActivity {
     private TextView numberOfPanicStudents;
-    private Socket panicSocket;
-    private SharedPreferences mySharedPreferences;
+    private Socket panicSocket, questionSocket;
+    SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String classroom, token, apiToken;
     private JsonObject jsonObject;
     private boolean panicState;
     private RestRequests request = new RestRequests();
-    private DrawerLayout drawerLayout;
+    DrawerLayout drawerLayout;
     private ActionBarDrawerToggle barDrawerToggle;
-    private String panicClassName;
-    private FloatingActionButton questionButton;
-    private ListView listView;
+    String panicClassName;
+    FloatingActionButton questionButton;
+    ListView listView;
+    CustomAdapter adapter;
+    private Classes classes = new Classes();
+    private Set<String> questionSet = new Set<String>() {
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        @NonNull
+        @Override
+        public Iterator<String> iterator() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @NonNull
+        @Override
+        public <T> T[] toArray(@NonNull T[] a) {
+            return null;
+        }
+
+        @Override
+        public boolean add(String s) {
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(@NonNull Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(@NonNull Collection<? extends String> c) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(@NonNull Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(@NonNull Collection<?> c) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+    };
+    private ArrayList questionArray = new ArrayList();
+    private Button panicButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +166,12 @@ public class PanicRoomActivity extends AppCompatActivity {
         panicSocket.on("connect", connectListener);
         panicSocket.on("login_success", loginListener);
         panicSocket.connect();
+        questionSocket.on("new_question", questionListener);
+        questionSocket.connect();
         numberOfPanicStudents.setText("0");
         panicSocket.emit("login", apiToken);
         panicState = false;
+        questionButton = (FloatingActionButton) findViewById(R.id.questionFAB);
         questionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +185,10 @@ public class PanicRoomActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             }
         });
+        questionArray.addAll(mySharedPreferences.getStringSet("questions", null));
+        adapter = new PanicRoomActivity.CustomAdapter(questionArray);
+        listView.setAdapter(adapter);
+        panicButton = (Button) findViewById(R.id.button_panicButton);
     }
 
     @Override
@@ -168,10 +257,57 @@ public class PanicRoomActivity extends AppCompatActivity {
         super.onStart();
         panicSocket.emit("login", token);
     }
+
     public void panicButtonClick(View view) {
         panicState = !panicState;
+        if(panicState) {
+            numberOfPanicStudents.setTextColor(Color.RED);
+            panicButton.setText("!");
+        }
+        else {
+            numberOfPanicStudents.setTextColor(Color.parseColor("#FFFFFF"));
+            panicButton.setText("?");
+        }
         jsonObject.addProperty("classroom", classroom);
         jsonObject.addProperty("state", panicState);
         panicSocket.emit("panic", jsonObject);
+    }
+
+    public class CustomAdapter extends BaseAdapter {
+        private ArrayList<String> questions = new ArrayList<>();
+
+        CustomAdapter() {
+            questions.clear();
+        }
+
+        public CustomAdapter(ArrayList<String> questionList) {
+            questions.addAll(questionList);
+        }
+
+        @Override
+        public int getCount() {
+            return questions.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = getLayoutInflater();
+            View row;
+            row = inflater.inflate(R.layout.question_list_row, parent, false);
+            TextView questionText;
+            questionText = (TextView) row.findViewById(R.id.question);
+            questionText.setText(questions.get(position));
+            return (row);
+        }
     }
 }

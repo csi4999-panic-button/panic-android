@@ -22,28 +22,32 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClassActionsActivity extends AppCompatActivity {
     private ListView listView;
-    private SharedPreferences mySharedPreferences;
+    SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String token;
-    private JsonObject jsonObject;
+    private JsonObject jsonObject, jsonQuestion;
     private ArrayList<String> classIds;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
-    private ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray;
+    ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray;
     private CustomAdapter adapter;
     private RestRequests request = new RestRequests();
-    private DrawerLayout drawerLayout;
+    DrawerLayout drawerLayout;
     private ActionBarDrawerToggle barDrawerToggle;
-    private FloatingActionButton optionsButton, joinClassButton, createClassButton;
+    FloatingActionButton optionsButton, joinClassButton, createClassButton;
     private LinearLayout joinLayout, createLayout;
+    private JsonArray classElementArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,9 +117,11 @@ public class ClassActionsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 classObject = classObjectsArray.get(i);
+                Set<String> questionSet = new HashSet<>(classObject.getQuestions());
                 editor.putString("classroom", classObject.getClassId());
                 editor.putString("courseType", classObject.getCourseType());
                 editor.putString("courseNumber", classObject.getCourseNumber());
+                editor.putStringSet("questions", questionSet);
                 editor.commit();
                 Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
                 startActivity(intent);
@@ -125,6 +131,7 @@ public class ClassActionsActivity extends AppCompatActivity {
         courseTypeArray = new ArrayList<>();
         courseNumberArray = new ArrayList<>();
         classTitleArray = new ArrayList<>();
+        questionsArray = new ArrayList<>();
     }
 
     @Override
@@ -161,9 +168,13 @@ public class ClassActionsActivity extends AppCompatActivity {
                         }
                         Log.d("Ion", "Generating classIds");
                         String classElement;
+                        JsonObject emptyObject = new JsonObject();
+                        emptyObject.addProperty("empty", "");
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
                             classObject = new Classes();
+                            classElementArray = new JsonArray();
+                            jsonQuestion = new JsonObject();
                             if (jsonObject.has("_id")) {
                                 classElement = jsonObject.get("_id").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
@@ -200,6 +211,20 @@ public class ClassActionsActivity extends AppCompatActivity {
                             } else
                                 classElement = "";
                             classObject.setCourseTitle(classElement);
+                            if(jsonObject.getAsJsonArray("questions").size() > 0) {
+                                classElementArray = jsonObject.getAsJsonArray("questions");
+                                for(int j = 0; j < classElementArray.size(); j++) {
+                                    jsonQuestion = classElementArray.get(j).getAsJsonObject();
+                                    questionsArray.add(jsonQuestion.get("question").toString());
+                                }
+                                classObject.setQuestions(questionsArray);
+                                classObjectsArray.add(classObject);
+                                courseTypeArray.add(classObject.getCourseType());
+                                courseNumberArray.add(classObject.getCourseNumber());
+                                classTitleArray.add(classObject.getCourseTitle());
+                                break;
+                            }
+                            classObject.setQuestions(questionsArray);
                             classObjectsArray.add(classObject);
                             courseTypeArray.add(classObject.getCourseType());
                             courseNumberArray.add(classObject.getCourseNumber());
