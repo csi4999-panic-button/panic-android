@@ -150,6 +150,7 @@ public class PanicRoomActivity extends AppCompatActivity {
         {
             try {
                 panicSocket = IO.socket(request.website());
+                questionSocket = IO.socket(request.website());
             } catch(URISyntaxException e){
                 e.printStackTrace();
             }
@@ -186,8 +187,6 @@ public class PanicRoomActivity extends AppCompatActivity {
             }
         });
         questionArray.addAll(mySharedPreferences.getStringSet("questions", null));
-        adapter = new PanicRoomActivity.CustomAdapter(questionArray);
-        listView.setAdapter(adapter);
         panicButton = (Button) findViewById(R.id.button_panicButton);
     }
 
@@ -252,10 +251,41 @@ public class PanicRoomActivity extends AppCompatActivity {
         }
     };
 
-    @Override
+    private Emitter.Listener questionListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            PanicRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String classID, questionId, questionString;
+                    int numberOfQuestions = 0;
+                    try {
+                        classID = data.getString("classroom");
+                        questionId = data.getString("questionId");
+                        questionString = data.getString("questionStr");
+                        numberOfQuestions = data.getInt("numberOfQuestions");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    questionArray.add(questionString);
+                    adapter = new PanicRoomActivity.CustomAdapter(questionArray);
+                    listView.setAdapter(adapter);
+                }
+            });
+        }
+    };
+
     protected void onStart() {
         super.onStart();
         panicSocket.emit("login", token);
+    }
+
+    protected void onResume() {
+        super.onResume();
+        adapter = new PanicRoomActivity.CustomAdapter(questionArray);
+        listView.setAdapter(adapter);
     }
 
     public void panicButtonClick(View view) {
