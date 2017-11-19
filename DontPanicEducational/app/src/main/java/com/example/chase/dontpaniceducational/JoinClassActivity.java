@@ -13,12 +13,14 @@ import com.koushikdutta.ion.Ion;
 
 public class JoinClassActivity extends AppCompatActivity {
     private EditText classroom;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_class);
         classroom = (EditText) findViewById(R.id.editText_classToJoin);
+        getSupportActionBar().setTitle("Join Class");
     }
 
     public void joinClass(View view) {
@@ -26,7 +28,7 @@ public class JoinClassActivity extends AppCompatActivity {
         JsonObject json = new JsonObject();
         json.addProperty("inviteCode", classCode);
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/classrooms/join")
+                .load(request.joinClassroom())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {

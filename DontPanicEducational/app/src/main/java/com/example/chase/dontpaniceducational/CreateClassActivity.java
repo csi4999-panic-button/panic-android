@@ -16,6 +16,7 @@ public class CreateClassActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = CreateClassActivity.MODE_PRIVATE;
+    private RestRequests request = new RestRequests();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,7 @@ public class CreateClassActivity extends AppCompatActivity {
         classSectionNumber = (EditText) findViewById(R.id.editText_sectionNumber);
         classCourseTitle = (EditText) findViewById(R.id.editText_courseTitle);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        getSupportActionBar().setTitle("Create Class");
     }
 
     public void createClassClick(View view) {
@@ -47,7 +49,7 @@ public class CreateClassActivity extends AppCompatActivity {
         json.addProperty("sectionNumber", sectionNumber);
         json.addProperty("courseTitle", courseTitle);
         Ion.with(this)
-                .load("http://www.panic-button.stream/api/v1/classrooms")
+                .load(request.classrooms())
                 .setJsonObjectBody(json)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {

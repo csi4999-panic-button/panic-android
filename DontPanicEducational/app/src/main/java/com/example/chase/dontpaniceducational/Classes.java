@@ -1,13 +1,17 @@
 package com.example.chase.dontpaniceducational;
 
+import com.google.gson.JsonArray;
+
 import java.util.ArrayList;
 
-public class ClassListView {
+public class Classes {
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
-    //private ArrayList<String> questions, students, teacherAssistants, teachers;
+    private ArrayList questions = new ArrayList();
+    private ArrayList answers = new ArrayList();
+    //, students, teacherAssistants, teachers;
 
-    public ClassListView() {}
+    public Classes() {}
 
     public String getClassId() {
         return classId;
@@ -57,15 +61,23 @@ public class ClassListView {
         this.courseTitle = courseTitle;
     }
 
-    /*public ArrayList<String> getQuestions() {
+    public ArrayList<String> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(final ArrayList<String> questions) {
+    public void setQuestions(final ArrayList questions) {
         this.questions.addAll(questions);
     }
 
-    public ArrayList<String> getStudents() {
+    public ArrayList<Integer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(final ArrayList answers) {
+        this.answers.addAll(answers);
+    }
+
+    /*public ArrayList<String> getStudents() {
         return students;
     }
 

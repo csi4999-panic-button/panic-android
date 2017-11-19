@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Don\'t Panic</string>
     <string name="button_login">LOGIN</string>
-    <string name="button_signUp">SIGN UP</string>
+    <string name="button_register">REGISTER</string>
     <string name="button_aboutUs">ABOUT US</string>
     <string name="textView_welcomeMessage">An easier, modern approach
         to classroom dynamics to enable both students and teachers</string>
@@ -36,6 +36,9 @@
     <string name="courseTitle">Course Title</string>
     <string name="listClasses">List Classes</string>
     <string name="joinClass">Invite Code</string>
-    <string name="panicButton">Panic!</string>
+    <string name="panicButton">\?</string>
     <string name="panickedStudents">Number of panicked students:</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="askQuestion">What is your question?</string>
 </resources>
