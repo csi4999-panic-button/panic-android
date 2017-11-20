@@ -284,6 +284,7 @@ public class PanicRoomActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
+        numberOfAnswersArray.add("0");
         adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
         listView.setAdapter(adapter);
     }
