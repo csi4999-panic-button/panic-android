@@ -28,6 +28,8 @@ env:
     - APK_DIR=app/build/outputs/apk/release
     - APK_NAME=app-release-unsigned.apk
     - FINAL_APK=dont-panic.apk
+    - UGUUSH_DIR=/opt/uguush
+    - UGUUSH_BIN=/opt/uguush/uguush
 
 before_install:
   - echo "${ANDROID_HOME}"
@@ -50,9 +52,11 @@ script:
   - ./gradlew assembleRelease
 
 after_success:
+  - git clone https://github.com/jschx/uguush.git ${UGUUSH_DIR} && chmod +x ${UGUUSH_BIN}
   - ${BT}/zipalign -v -p 4 ${APK_DIR}/${APK_NAME} ${APK_NAME}
   - ${BT}/apksigner sign -v --ks ../dpk --ks-pass env:KEY_PASS --out ${FINAL_APK} ${APK_NAME}
   - ${BT}/apksigner verify -v ${FINAL_APK}
+  - ${UGUUSH_BIN} -o teknik -u ${FINAL_APK}
 
 notifications:
   slack: 
