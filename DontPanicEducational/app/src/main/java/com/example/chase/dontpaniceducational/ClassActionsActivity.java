@@ -148,6 +148,8 @@ public class ClassActionsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        classObjectsArray.clear();
+        questionsArray.clear();
         updateClassList(this);
     }
 
