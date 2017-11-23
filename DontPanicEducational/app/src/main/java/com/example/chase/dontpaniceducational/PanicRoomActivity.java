@@ -26,13 +26,15 @@ import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
+
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-public class PanicRoomActivity extends AppCompatActivity {
+public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
     private Socket panicSocket, questionSocket;
     SharedPreferences mySharedPreferences;
@@ -118,11 +120,15 @@ public class PanicRoomActivity extends AppCompatActivity {
     };
     private ArrayList questionArray = new ArrayList(), numberOfAnswersArray = new ArrayList();
     private Button panicButton;
+    private Intent intent;
+    Classes classObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_room);
+        intent = getIntent();
+        classObject = (Classes) intent.getSerializableExtra("classObject");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
@@ -142,8 +148,7 @@ public class PanicRoomActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = mySharedPreferences.getString("courseType", null);
-        panicClassName = panicClassName.concat(" ").concat(mySharedPreferences.getString("courseNumber", null));
+        panicClassName = classObject.getCourseType();
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
@@ -153,7 +158,6 @@ public class PanicRoomActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         classroom = mySharedPreferences.getString("classroom", null);
         token = mySharedPreferences.getString("token", null);
         token = token.substring(1, token.length() - 1);
@@ -184,9 +188,6 @@ public class PanicRoomActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             }
         });
-        TinyDB tinyDB = new TinyDB(this);
-        questionArray.addAll(tinyDB.getListString("questions"));
-        numberOfAnswersArray.addAll(tinyDB.getListString("answers"));
         panicButton = (Button) findViewById(R.id.button_panicButton);
     }
 
@@ -270,7 +271,8 @@ public class PanicRoomActivity extends AppCompatActivity {
                         return;
                     }
                     questionArray.add(questionString);
-                    adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
+                    numberOfAnswersArray.add("0");
+                    adapter = new PanicRoomActivity.CustomAdapter(classObject);
                     listView.setAdapter(adapter);
                 }
             });
@@ -284,8 +286,7 @@ public class PanicRoomActivity extends AppCompatActivity {
 
     protected void onResume() {
         super.onResume();
-        numberOfAnswersArray.add("0");
-        adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
+        adapter = new PanicRoomActivity.CustomAdapter(classObject);
         listView.setAdapter(adapter);
     }
 
@@ -305,17 +306,14 @@ public class PanicRoomActivity extends AppCompatActivity {
     }
 
     public class CustomAdapter extends BaseAdapter {
-        private ArrayList<String> questions = new ArrayList<>();
-        private ArrayList<String> numberOfAnswersAdapter = new ArrayList<>();
+        private ArrayList<Question> questions = new ArrayList<>();
 
         CustomAdapter() {
             questions.clear();
-            numberOfAnswersAdapter.clear();
         }
 
-        public CustomAdapter(ArrayList<String> questionList, ArrayList<String> numAnswers) {
-            questions.addAll(questionList);
-            numberOfAnswersAdapter.addAll(numAnswers);
+        public CustomAdapter(Classes classObjectAdapter) {
+            questions.addAll(classObjectAdapter.getQuestions());
         }
 
         @Override
@@ -337,12 +335,14 @@ public class PanicRoomActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = getLayoutInflater();
             View row;
+            int numberOfAnswers;
             row = inflater.inflate(R.layout.question_list_row, parent, false);
             TextView questionText, numberOfAnswersTV;
             questionText = (TextView) row.findViewById(R.id.question);
             numberOfAnswersTV = (TextView) row.findViewById(R.id.numberOfAnswersTextView);
-            questionText.setText(questions.get(position));
-            numberOfAnswersTV.setText(numberOfAnswersAdapter.get(position));
+            questionText.setText(questions.get(position).getQuestion());
+            numberOfAnswers = questions.get(position).getAnswerObject().getAnswers().size();
+            numberOfAnswersTV.setText(String.valueOf(numberOfAnswers));
             return (row);
         }
     }
