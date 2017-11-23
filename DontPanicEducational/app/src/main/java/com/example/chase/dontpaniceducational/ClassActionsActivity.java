@@ -48,8 +48,8 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     FloatingActionButton optionsButton, joinClassButton, createClassButton;
     private LinearLayout joinLayout, createLayout;
     private JsonArray classQuestionJsonArray, classAnswerJsonArray, questionVotesArray;
-    private Question questionObject = new Question();
-    private Answer answerObject = new Answer();
+    private Question questionObject;
+    private Answer answerObject;
     private ArrayList<Question> questionArrayList = new ArrayList<>();
 
     @Override
@@ -220,6 +220,7 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                                 classQuestionJsonArray = jsonObject.getAsJsonArray("questions");
                                 for(int j = 0; j < classQuestionJsonArray.size(); j++) {
                                     questionObject = new Question();
+                                    answerObject = new Answer();
                                     jsonQuestion = classQuestionJsonArray.get(j).getAsJsonObject();
                                     questionObject.setQuestion(jsonQuestion.get("question").toString());
                                     questionObject.setUser(jsonQuestion.get("user").toString());
