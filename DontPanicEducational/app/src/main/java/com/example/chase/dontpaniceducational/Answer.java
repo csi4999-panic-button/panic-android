@@ -4,17 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Answer implements Serializable {
-    private ArrayList<Answer> answers = new ArrayList<>();
-    private String user, id;
+    private String user, id, answer;
     private ArrayList<String> votes = new ArrayList<>();
     private boolean resolution;
 
-    public ArrayList getAnswers() {
-        return answers;
+    public String getAnswer() {
+        return answer;
     }
 
-    public void setAnswers(ArrayList answer) {
-        this.answers = answers;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 
     public String getUser() {

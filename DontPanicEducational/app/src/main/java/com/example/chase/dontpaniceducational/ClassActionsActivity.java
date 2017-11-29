@@ -36,7 +36,7 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String token;
-    private JsonObject jsonObject, jsonQuestion, jsonAnswer;
+    private JsonObject jsonObject, jsonQuestion, jsonAnswer, jsonObjectAnswer, answerJsonObject;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
     ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray, answerArrayString, voteArray;
@@ -50,7 +50,8 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     private JsonArray classQuestionJsonArray, classAnswerJsonArray, questionVotesArray;
     private Question questionObject;
     private Answer answerObject;
-    private ArrayList<Question> questionArrayList = new ArrayList<>();
+    private ArrayList<Question> questionArrayList;
+    private ArrayList<Answer> answerArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +146,6 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     protected void onStart() {
         super.onStart();
         classObjectsArray.clear();
-        questionsArray.clear();
         updateClassList(this);
     }
 
@@ -180,6 +180,9 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                             classQuestionJsonArray = new JsonArray();
                             classAnswerJsonArray = new JsonArray();
                             jsonQuestion = new JsonObject();
+                            questionArrayList = new ArrayList<>();
+                            jsonObjectAnswer = new JsonObject();
+                            answerArrayList = new ArrayList<>();
                             if (jsonObject.has("_id")) {
                                 classElement = jsonObject.get("_id").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
@@ -220,30 +223,35 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                                 classQuestionJsonArray = jsonObject.getAsJsonArray("questions");
                                 for(int j = 0; j < classQuestionJsonArray.size(); j++) {
                                     questionObject = new Question();
-                                    answerObject = new Answer();
+                                    answerArrayList = new ArrayList<>();
+                                    classAnswerJsonArray = new JsonArray();
                                     jsonQuestion = classQuestionJsonArray.get(j).getAsJsonObject();
                                     questionObject.setQuestion(jsonQuestion.get("question").toString());
                                     questionObject.setUser(jsonQuestion.get("user").toString());
                                     questionObject.setQuestionId(jsonQuestion.get("_id").toString());
-                                    classAnswerJsonArray.addAll(jsonQuestion.getAsJsonArray("answers"));
-                                    for(JsonElement answer : classAnswerJsonArray)
-                                        answerArrayString.add(answer.toString());
-                                    answerObject.setAnswers(answerArrayString);
-                                    answerArrayString.clear();
-                                    answerObject.setUser(jsonQuestion.get("user").toString());
-                                    answerObject.setId(jsonQuestion.get("_id").toString());
-                                    classAnswerJsonArray.addAll(jsonQuestion.getAsJsonArray("votes"));
-                                    for(JsonElement voteId : classAnswerJsonArray)
-                                        voteArray.add(voteId.toString());
-                                    answerObject.setVotes(voteArray);
-                                    if(jsonQuestion.get("resolution").getAsBoolean())
-                                        answerObject.setResolution(true);
                                     questionVotesArray.addAll(jsonQuestion.get("votes").getAsJsonArray());
                                     questionObject.setVotes(questionVotesArray.size());
                                     questionObject.setResolution(jsonQuestion.get("resolution").getAsInt());
                                     questionObject.setVoted(jsonQuestion.get("voted").getAsBoolean());
-                                    questionObject.setAnswerObject(answerObject);
                                     questionArrayList.add(questionObject);
+                                    classAnswerJsonArray.addAll(jsonQuestion.getAsJsonArray("answers"));
+                                    for(JsonElement answerElement : classAnswerJsonArray) {
+                                        answerObject = new Answer();
+                                        answerJsonObject = new JsonObject();
+                                        answerJsonObject = answerElement.getAsJsonObject();
+                                        answerObject.setAnswer(answerJsonObject.get("answer").toString());
+                                        answerObject.setUser(answerJsonObject.get("user").toString());
+                                        answerObject.setId(answerJsonObject.get("_id").toString());
+                                        for(JsonElement vote : answerJsonObject.get("votes").getAsJsonArray())
+                                            voteArray.add(vote.toString());
+                                        answerObject.setVotes(voteArray);
+                                        if(answerJsonObject.get("isResolution").getAsBoolean())
+                                            answerObject.setResolution(true);
+                                        else
+                                            answerObject.setResolution(false);
+                                        answerArrayList.add(answerObject);
+                                    }
+                                    questionObject.setAnswerList(answerArrayList);
                                 }
                                 classObject.setQuestions(questionArrayList);
                                 classObjectsArray.add(classObject);

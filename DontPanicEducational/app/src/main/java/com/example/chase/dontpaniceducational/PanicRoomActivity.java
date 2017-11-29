@@ -282,12 +282,12 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     protected void onStart() {
         super.onStart();
         panicSocket.emit("login", token);
+        adapter = new PanicRoomActivity.CustomAdapter(classObject);
+        listView.setAdapter(adapter);
     }
 
     protected void onResume() {
         super.onResume();
-        adapter = new PanicRoomActivity.CustomAdapter(classObject);
-        listView.setAdapter(adapter);
     }
 
     public void panicButtonClick(View view) {
@@ -341,7 +341,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             questionText = (TextView) row.findViewById(R.id.question);
             numberOfAnswersTV = (TextView) row.findViewById(R.id.numberOfAnswersTextView);
             questionText.setText(questions.get(position).getQuestion());
-            numberOfAnswers = questions.get(position).getAnswerObject().getAnswers().size();
+            numberOfAnswers = questions.get(position).getAnswerList().size();
             numberOfAnswersTV.setText(String.valueOf(numberOfAnswers));
             return (row);
         }

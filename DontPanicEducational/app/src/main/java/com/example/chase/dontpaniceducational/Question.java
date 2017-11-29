@@ -1,10 +1,11 @@
 package com.example.chase.dontpaniceducational;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Question implements Serializable {
     private String question, user, id;
-    private Answer answerObject;
+    private ArrayList<Answer> answerList = new ArrayList<>();
     private int resolution, votes;
     private boolean voted;
 
@@ -42,12 +43,12 @@ public class Question implements Serializable {
         this.resolution = resolution;
     }
 
-    public Answer getAnswerObject() {
-        return answerObject;
+    public ArrayList<Answer> getAnswerList() {
+        return answerList;
     }
 
-    public void setAnswerObject(Answer answerObject) {
-        this.answerObject = answerObject;
+    public void setAnswerList(ArrayList<Answer> answerList) {
+        this.answerList = answerList;
     }
 
     public int getVotes() {
