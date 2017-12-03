@@ -36,11 +36,13 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String token;
-    private JsonObject jsonObject, jsonQuestion, jsonAnswer, jsonObjectAnswer, answerJsonObject;
+    private JsonObject jsonObject, jsonQuestion, answerJsonObject;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
     ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray, answerArrayString, voteArray;
     ArrayList<Integer> answerArrayInt;
+    private ArrayList<Question> questionArrayList;
+    private ArrayList<Answer> answerArrayList;
     private CustomAdapter adapter;
     private RestRequests request = new RestRequests();
     DrawerLayout drawerLayout;
@@ -50,8 +52,7 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
     private JsonArray classQuestionJsonArray, classAnswerJsonArray, questionVotesArray;
     private Question questionObject;
     private Answer answerObject;
-    private ArrayList<Question> questionArrayList;
-    private ArrayList<Answer> answerArrayList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,6 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Classrooms");
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        final SharedPreferences.Editor editor = mySharedPreferences.edit();
         token = mySharedPreferences.getString("token", null);
         token = token.substring(1, token.length() - 1);
         token = "Bearer ".concat(token);
@@ -131,7 +131,6 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
         classTitleArray = new ArrayList<>();
         questionsArray = new ArrayList<>();
         answerArrayInt = new ArrayList<>();
-        jsonAnswer = new JsonObject();
         answerArrayString = new ArrayList<>();
         voteArray = new ArrayList<>();
         questionVotesArray = new JsonArray();
@@ -181,7 +180,6 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                             classAnswerJsonArray = new JsonArray();
                             jsonQuestion = new JsonObject();
                             questionArrayList = new ArrayList<>();
-                            jsonObjectAnswer = new JsonObject();
                             answerArrayList = new ArrayList<>();
                             if (jsonObject.has("_id")) {
                                 classElement = jsonObject.get("_id").toString();
