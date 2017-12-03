@@ -27,15 +27,14 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ClassActionsActivity extends AppCompatActivity implements Serializable {
+public class ClassActionsActivity extends AppCompatActivity {
     private ListView listView;
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String token;
+    private String token, editedString;
     private JsonObject jsonObject, jsonQuestion, answerJsonObject;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
@@ -224,9 +223,15 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                                     answerArrayList = new ArrayList<>();
                                     classAnswerJsonArray = new JsonArray();
                                     jsonQuestion = classQuestionJsonArray.get(j).getAsJsonObject();
-                                    questionObject.setQuestion(jsonQuestion.get("question").toString());
-                                    questionObject.setUser(jsonQuestion.get("user").toString());
-                                    questionObject.setQuestionId(jsonQuestion.get("_id").toString());
+                                    editedString = jsonQuestion.get("question").toString();
+                                    editedString = editedString.substring(1, editedString.length() - 1);
+                                    questionObject.setQuestion(editedString);
+                                    editedString = jsonQuestion.get("user").toString();
+                                    editedString = editedString.substring(1, editedString.length() - 1);
+                                    questionObject.setUser(editedString);
+                                    editedString = jsonQuestion.get("_id").toString();
+                                    editedString = editedString.substring(1, editedString.length() - 1);
+                                    questionObject.setQuestionId(editedString);
                                     questionVotesArray.addAll(jsonQuestion.get("votes").getAsJsonArray());
                                     questionObject.setVotes(questionVotesArray.size());
                                     questionObject.setResolution(jsonQuestion.get("resolution").getAsInt());
@@ -237,9 +242,15 @@ public class ClassActionsActivity extends AppCompatActivity implements Serializa
                                         answerObject = new Answer();
                                         answerJsonObject = new JsonObject();
                                         answerJsonObject = answerElement.getAsJsonObject();
-                                        answerObject.setAnswer(answerJsonObject.get("answer").toString());
-                                        answerObject.setUser(answerJsonObject.get("user").toString());
-                                        answerObject.setId(answerJsonObject.get("_id").toString());
+                                        editedString = answerJsonObject.get("answer").toString();
+                                        editedString = editedString.substring(1, editedString.length() - 1);
+                                        answerObject.setAnswer(editedString);
+                                        editedString = answerJsonObject.get("user").toString();
+                                        editedString = editedString.substring(1, editedString.length() - 1);
+                                        answerObject.setUser(editedString);
+                                        editedString = answerJsonObject.get("_id").toString();
+                                        editedString = editedString.substring(1, editedString.length() - 1);
+                                        answerObject.setId(editedString);
                                         for(JsonElement vote : answerJsonObject.get("votes").getAsJsonArray())
                                             voteArray.add(vote.toString());
                                         answerObject.setVotes(voteArray);

@@ -1,5 +1,6 @@
 package com.example.chase.dontpaniceducational;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,18 +16,21 @@ public class QuestionActivity extends AppCompatActivity {
 
     Button sendQuestion, resetQuestion;
     private EditText question;
-    private String questionAsked, url = "http://www.panic-button.stream/api/v1/classrooms/";
-    private RestRequests request = new RestRequests();
+    private String questionAsked, classroomId;
+    private String url = "http://www.panic-button.stream/api/v1/classrooms/";
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = CreateClassActivity.MODE_PRIVATE;
     Ion ion;
     private boolean state;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_question);
+        intent = getIntent();
+        classroomId = intent.getSerializableExtra("classroom").toString();
         sendQuestion = (Button) findViewById(R.id.sendQuestion);
         resetQuestion = (Button) findViewById(R.id.resetQuestion);
         question = (EditText) findViewById(R.id.questionToAsk);
@@ -46,7 +50,7 @@ public class QuestionActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        url = url.concat(mySharedPreferences.getString("classroom", null)).concat("/questions");
+        url = url.concat(classroomId).concat("/questions");
         JsonObject json = new JsonObject();
         json.addProperty("question", questionAsked);
         Ion.with(this)
@@ -63,7 +67,7 @@ public class QuestionActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        Toast.makeText(QuestionActivity.this, "logged in", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(QuestionActivity.this, "Question Posted", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 });

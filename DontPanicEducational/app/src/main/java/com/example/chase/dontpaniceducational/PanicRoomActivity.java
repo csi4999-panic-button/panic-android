@@ -1,5 +1,6 @@
 package com.example.chase.dontpaniceducational;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -54,11 +55,14 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     private Button panicButton;
     private Intent intent;
     Classes classObject;
+    Question questionObject;
+    private ArrayList<Question> questions = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_room);
+        questionObject = new Question();
         intent = getIntent();
         classObject = (Classes) intent.getSerializableExtra("classObject");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
@@ -111,6 +115,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PanicRoomActivity.this, QuestionActivity.class);
+                intent.putExtra("classroom", classroom);
                 startActivity(intent);
             }
         });
@@ -118,6 +123,11 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                questionObject = questions.get(i);
+                Intent intent = new Intent(PanicRoomActivity.this, AnswerActivity.class);
+                intent.putExtra("questionObject", questionObject);
+                intent.putExtra("classroom", classroom);
+                startActivity(intent);
             }
         });
         panicButton = (Button) findViewById(R.id.button_panicButton);
@@ -213,13 +223,18 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
 
     protected void onStart() {
         super.onStart();
-        panicSocket.emit("login", token);
+        panicSocket.emit("login", apiToken);
+        questions.clear();
         adapter = new PanicRoomActivity.CustomAdapter(classObject);
         listView.setAdapter(adapter);
     }
 
     protected void onResume() {
         super.onResume();
+    }
+
+    private void updateQuestionList(Context c) {
+
     }
 
     public void panicButtonClick(View view) {
@@ -238,8 +253,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     }
 
     public class CustomAdapter extends BaseAdapter {
-        private ArrayList<Question> questions = new ArrayList<>();
-
         CustomAdapter() {
             questions.clear();
         }
