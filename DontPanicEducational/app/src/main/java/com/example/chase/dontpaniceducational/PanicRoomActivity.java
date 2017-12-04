@@ -31,13 +31,10 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
 
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
-    private Socket panicSocket, questionSocket;
+    private Socket panicSocket, questionSocket, answerSocket;
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
@@ -51,12 +48,12 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     FloatingActionButton questionButton;
     ListView listView;
     CustomAdapter adapter;
-    private ArrayList questionArray = new ArrayList(), numberOfAnswersArray = new ArrayList();
     private Button panicButton;
     private Intent intent;
     Classes classObject;
     Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
+    private int totalNumberOfQuestions = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +87,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             try {
                 panicSocket = IO.socket(request.website());
                 questionSocket = IO.socket(request.website());
+                answerSocket = IO.socket(request.website());
             } catch(URISyntaxException e){
                 e.printStackTrace();
             }
@@ -105,8 +103,10 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         panicSocket.on("connect", connectListener);
         panicSocket.on("login_success", loginListener);
         panicSocket.connect();
-        questionSocket.on("new_question", questionListener);
+        questionSocket.on("new_question", newQuestionListener);
         questionSocket.connect();
+        answerSocket.on("new_answer", newAnswerListener);
+        answerSocket.connect();
         numberOfPanicStudents.setText("0");
         panicSocket.emit("login", apiToken);
         panicState = false;
@@ -170,7 +170,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Success",
+                    Toast.makeText(PanicRoomActivity.this, "Connected",
                             Toast.LENGTH_SHORT).show();
                 }
             });
@@ -187,14 +187,14 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "logged in",
+                    Toast.makeText(PanicRoomActivity.this, "Logged In",
                             Toast.LENGTH_SHORT).show();
                 }
             });
         }
     };
 
-    private Emitter.Listener questionListener = new Emitter.Listener() {
+    private Emitter.Listener newQuestionListener = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             PanicRoomActivity.this.runOnUiThread(new Runnable() {
@@ -203,6 +203,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     JSONObject data = (JSONObject) args[0];
                     String classID, questionId, questionString;
                     int numberOfQuestions = 0;
+                    Question question = new Question();
+                    ArrayList<Answer> emptyAnswerList = new ArrayList<>();
                     try {
                         classID = data.getString("classroom");
                         questionId = data.getString("questionId");
@@ -212,8 +214,41 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                         e.printStackTrace();
                         return;
                     }
-                    questionArray.add(questionString);
-                    numberOfAnswersArray.add("0");
+                    question.setQuestion(questionString);
+                    question.setQuestionId(questionId);
+                    question.setUser(mySharedPreferences.getString("token", null));
+                    question.setVotes(0);
+                    question.setVoted(false);
+                    question.setResolution(-1);
+                    question.setAnswerList(emptyAnswerList);
+                    questions.add(question);
+                    totalNumberOfQuestions = numberOfQuestions;
+                    adapter = new PanicRoomActivity.CustomAdapter(classObject);
+                    listView.setAdapter(adapter);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener newAnswerListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            PanicRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String classroomId, questionId, answerId, answerString;
+                    int numberOfQuestions = 0;
+                    try {
+                        classroomId = data.getString("classroom");
+                        questionId = data.getString("questionId");
+                        answerId = data.getString("answerId");
+                        answerString = data.getString("answerStr");
+                        numberOfQuestions = data.getInt("numberOfQuestions");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
                     adapter = new PanicRoomActivity.CustomAdapter(classObject);
                     listView.setAdapter(adapter);
                 }
@@ -227,6 +262,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         questions.clear();
         adapter = new PanicRoomActivity.CustomAdapter(classObject);
         listView.setAdapter(adapter);
+        totalNumberOfQuestions = questions.size();
     }
 
     protected void onResume() {
