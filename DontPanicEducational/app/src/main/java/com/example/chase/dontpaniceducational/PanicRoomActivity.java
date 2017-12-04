@@ -29,6 +29,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
@@ -53,6 +54,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     Classes classObject;
     Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
+    private ArrayList<Answer> answers = new ArrayList<>();
     private int totalNumberOfQuestions = 0;
 
     @Override
@@ -102,11 +104,9 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         panicSocket.on("panic", panicListener);
         panicSocket.on("connect", connectListener);
         panicSocket.on("login_success", loginListener);
+        panicSocket.on("new_question", newQuestionListener);
+        panicSocket.on("new_answer", newAnswerListener);
         panicSocket.connect();
-        questionSocket.on("new_question", newQuestionListener);
-        questionSocket.connect();
-        answerSocket.on("new_answer", newAnswerListener);
-        answerSocket.connect();
         numberOfPanicStudents.setText("0");
         panicSocket.emit("login", apiToken);
         panicState = false;
@@ -131,6 +131,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             }
         });
         panicButton = (Button) findViewById(R.id.button_panicButton);
+        adapter = new PanicRoomActivity.CustomAdapter(classObject);
     }
 
     @Override
@@ -223,7 +224,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     question.setAnswerList(emptyAnswerList);
                     questions.add(question);
                     totalNumberOfQuestions = numberOfQuestions;
-                    adapter = new PanicRoomActivity.CustomAdapter(classObject);
+                    classObject.setQuestions(questions);
                     listView.setAdapter(adapter);
                 }
             });
@@ -238,18 +239,32 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
                     String classroomId, questionId, answerId, answerString;
-                    int numberOfQuestions = 0;
+                    int numberOfAnswers = 0;
+                    Answer answer = new Answer();
+                    ArrayList<String> emptyAnswerList = new ArrayList<>();
                     try {
                         classroomId = data.getString("classroom");
                         questionId = data.getString("questionId");
                         answerId = data.getString("answerId");
                         answerString = data.getString("answerStr");
-                        numberOfQuestions = data.getInt("numberOfQuestions");
+                        numberOfAnswers = data.getInt("numberOfAnswers");
                     } catch (Exception e) {
                         e.printStackTrace();
                         return;
                     }
-                    adapter = new PanicRoomActivity.CustomAdapter(classObject);
+                    answer.setId(answerId);
+                    answer.setUser(mySharedPreferences.getString("token", null));
+                    answer.setAnswer(answerString);
+                    answer.setResolution(false);
+                    answer.setVotes(emptyAnswerList);
+                    for(Question currentQuestion : questions) {
+                        if(currentQuestion.getQuestionId().matches(questionId)) {
+                            ArrayList<Answer> updatedAnswerList = currentQuestion.getAnswerList();
+                            updatedAnswerList.add(answer);
+                            currentQuestion.setAnswerList(updatedAnswerList);
+                            break;
+                        }
+                    }
                     listView.setAdapter(adapter);
                 }
             });
@@ -259,14 +274,12 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     protected void onStart() {
         super.onStart();
         panicSocket.emit("login", apiToken);
-        questions.clear();
-        adapter = new PanicRoomActivity.CustomAdapter(classObject);
-        listView.setAdapter(adapter);
-        totalNumberOfQuestions = questions.size();
     }
 
     protected void onResume() {
         super.onResume();
+        listView.setAdapter(adapter);
+        totalNumberOfQuestions = questions.size();
     }
 
     private void updateQuestionList(Context c) {

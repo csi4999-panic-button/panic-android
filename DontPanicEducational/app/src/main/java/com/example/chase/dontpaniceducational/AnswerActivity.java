@@ -43,7 +43,7 @@ public class AnswerActivity extends AppCompatActivity {
     }
 
     public void answerToGive(View view) {
-        answerGiven = answer.toString();
+        answerGiven = answer.getText().toString();
         if(answerGiven.equals("")) {
             Toast.makeText(this, "You cannot continue because you don't have an answer.",
                     Toast.LENGTH_SHORT).show();
