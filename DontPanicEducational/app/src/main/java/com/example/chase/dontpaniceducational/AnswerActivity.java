@@ -34,7 +34,7 @@ public class AnswerActivity extends AppCompatActivity {
         answer = (EditText) findViewById(R.id.editText_Answer);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         classroom = intent.getSerializableExtra("classroom").toString();
-        url = url.concat(classroom).concat("/question/").concat(
+        url = url.concat(classroom).concat("/questions/").concat(
                 questionObject.getQuestionId()).concat("/answers");
     }
 
