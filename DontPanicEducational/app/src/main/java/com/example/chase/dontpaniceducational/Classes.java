@@ -1,15 +1,12 @@
 package com.example.chase.dontpaniceducational;
 
-import com.google.gson.JsonArray;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Classes {
+public class Classes implements Serializable{
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
-    private ArrayList questions = new ArrayList();
-    private ArrayList answers = new ArrayList();
-    //, students, teacherAssistants, teachers;
+    private ArrayList<Question> questions = new ArrayList<>();
 
     public Classes() {}
 
@@ -61,43 +58,11 @@ public class Classes {
         this.courseTitle = courseTitle;
     }
 
-    public ArrayList<String> getQuestions() {
+    public ArrayList<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(final ArrayList questions) {
-        this.questions.addAll(questions);
+    public void setQuestions(ArrayList<Question> questions) {
+        this.questions = questions;
     }
-
-    public ArrayList<Integer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(final ArrayList answers) {
-        this.answers.addAll(answers);
-    }
-
-    /*public ArrayList<String> getStudents() {
-        return students;
-    }
-
-    public void setStudents(final ArrayList<String> students) {
-        this.students.addAll(students);
-    }
-
-    public ArrayList<String> getTeacherAssistants() {
-        return teacherAssistants;
-    }
-
-    public void setTeacherAssistants(final ArrayList<String> teacherAssistants) {
-        this.teacherAssistants.addAll(teacherAssistants);
-    }
-
-    public ArrayList<String> getTeachers() {
-        return teachers;
-    }
-
-    public void setTeachers(final ArrayList<String> teachers) {
-        this.teachers.addAll(teachers);
-    }*/
 }

@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("token", result.get("token").toString());
                         editor.commit();
                         Toast.makeText(LoginActivity.this, "logged in", Toast.LENGTH_SHORT).show();
-
                         Intent intent = new Intent(LoginActivity.this, ClassActionsActivity.class);
                         startActivity(intent);
                         finish();

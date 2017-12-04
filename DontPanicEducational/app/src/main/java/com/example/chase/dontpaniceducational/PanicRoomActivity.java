@@ -1,5 +1,6 @@
 package com.example.chase.dontpaniceducational;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -26,15 +27,15 @@ import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
 
-public class PanicRoomActivity extends AppCompatActivity {
+public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
-    private Socket panicSocket, questionSocket;
+    private Socket panicSocket, questionSocket, answerSocket;
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
@@ -48,81 +49,21 @@ public class PanicRoomActivity extends AppCompatActivity {
     FloatingActionButton questionButton;
     ListView listView;
     CustomAdapter adapter;
-    private Classes classes = new Classes();
-    private Set<String> questionSet = new Set<String>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return false;
-        }
-
-        @NonNull
-        @Override
-        public Iterator<String> iterator() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @NonNull
-        @Override
-        public <T> T[] toArray(@NonNull T[] a) {
-            return null;
-        }
-
-        @Override
-        public boolean add(String s) {
-            return false;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsAll(@NonNull Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(@NonNull Collection<? extends String> c) {
-            return false;
-        }
-
-        @Override
-        public boolean retainAll(@NonNull Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAll(@NonNull Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public void clear() {}
-    };
-    private ArrayList questionArray = new ArrayList(), numberOfAnswersArray = new ArrayList();
     private Button panicButton;
+    private Intent intent;
+    Classes classObject;
+    Question questionObject;
+    private ArrayList<Question> questions = new ArrayList<>();
+    private ArrayList<Answer> answers = new ArrayList<>();
+    private int totalNumberOfQuestions = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_room);
+        questionObject = new Question();
+        intent = getIntent();
+        classObject = (Classes) intent.getSerializableExtra("classObject");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
@@ -142,19 +83,18 @@ public class PanicRoomActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = mySharedPreferences.getString("courseType", null);
-        panicClassName = panicClassName.concat(" ").concat(mySharedPreferences.getString("courseNumber", null));
+        panicClassName = classObject.getCourseType();
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
                 panicSocket = IO.socket(request.website());
                 questionSocket = IO.socket(request.website());
+                answerSocket = IO.socket(request.website());
             } catch(URISyntaxException e){
                 e.printStackTrace();
             }
         }
-        mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        classroom = mySharedPreferences.getString("classroom", null);
+        classroom = classObject.getClassId();
         token = mySharedPreferences.getString("token", null);
         token = token.substring(1, token.length() - 1);
         apiToken = token;
@@ -164,9 +104,9 @@ public class PanicRoomActivity extends AppCompatActivity {
         panicSocket.on("panic", panicListener);
         panicSocket.on("connect", connectListener);
         panicSocket.on("login_success", loginListener);
+        panicSocket.on("new_question", newQuestionListener);
+        panicSocket.on("new_answer", newAnswerListener);
         panicSocket.connect();
-        questionSocket.on("new_question", questionListener);
-        questionSocket.connect();
         numberOfPanicStudents.setText("0");
         panicSocket.emit("login", apiToken);
         panicState = false;
@@ -175,6 +115,7 @@ public class PanicRoomActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PanicRoomActivity.this, QuestionActivity.class);
+                intent.putExtra("classroom", classroom);
                 startActivity(intent);
             }
         });
@@ -182,12 +123,15 @@ public class PanicRoomActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                questionObject = questions.get(i);
+                Intent intent = new Intent(PanicRoomActivity.this, AnswerActivity.class);
+                intent.putExtra("questionObject", questionObject);
+                intent.putExtra("classroom", classroom);
+                startActivity(intent);
             }
         });
-        TinyDB tinyDB = new TinyDB(this);
-        questionArray.addAll(tinyDB.getListString("questions"));
-        numberOfAnswersArray.addAll(tinyDB.getListString("answers"));
         panicButton = (Button) findViewById(R.id.button_panicButton);
+        adapter = new PanicRoomActivity.CustomAdapter(classObject);
     }
 
     @Override
@@ -227,7 +171,7 @@ public class PanicRoomActivity extends AppCompatActivity {
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Success",
+                    Toast.makeText(PanicRoomActivity.this, "Connected",
                             Toast.LENGTH_SHORT).show();
                 }
             });
@@ -244,14 +188,14 @@ public class PanicRoomActivity extends AppCompatActivity {
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "logged in",
+                    Toast.makeText(PanicRoomActivity.this, "Logged In",
                             Toast.LENGTH_SHORT).show();
                 }
             });
         }
     };
 
-    private Emitter.Listener questionListener = new Emitter.Listener() {
+    private Emitter.Listener newQuestionListener = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             PanicRoomActivity.this.runOnUiThread(new Runnable() {
@@ -260,6 +204,8 @@ public class PanicRoomActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String classID, questionId, questionString;
                     int numberOfQuestions = 0;
+                    Question question = new Question();
+                    ArrayList<Answer> emptyAnswerList = new ArrayList<>();
                     try {
                         classID = data.getString("classroom");
                         questionId = data.getString("questionId");
@@ -269,8 +215,56 @@ public class PanicRoomActivity extends AppCompatActivity {
                         e.printStackTrace();
                         return;
                     }
-                    questionArray.add(questionString);
-                    adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
+                    question.setQuestion(questionString);
+                    question.setQuestionId(questionId);
+                    question.setUser(mySharedPreferences.getString("token", null));
+                    question.setVotes(0);
+                    question.setVoted(false);
+                    question.setResolution(-1);
+                    question.setAnswerList(emptyAnswerList);
+                    questions.add(question);
+                    totalNumberOfQuestions = numberOfQuestions;
+                    classObject.setQuestions(questions);
+                    listView.setAdapter(adapter);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener newAnswerListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            PanicRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String classroomId, questionId, answerId, answerString;
+                    int numberOfAnswers = 0;
+                    Answer answer = new Answer();
+                    ArrayList<String> emptyAnswerList = new ArrayList<>();
+                    try {
+                        classroomId = data.getString("classroom");
+                        questionId = data.getString("questionId");
+                        answerId = data.getString("answerId");
+                        answerString = data.getString("answerStr");
+                        numberOfAnswers = data.getInt("numberOfAnswers");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    answer.setId(answerId);
+                    answer.setUser(mySharedPreferences.getString("token", null));
+                    answer.setAnswer(answerString);
+                    answer.setResolution(false);
+                    answer.setVotes(emptyAnswerList);
+                    for(Question currentQuestion : questions) {
+                        if(currentQuestion.getQuestionId().matches(questionId)) {
+                            ArrayList<Answer> updatedAnswerList = currentQuestion.getAnswerList();
+                            updatedAnswerList.add(answer);
+                            currentQuestion.setAnswerList(updatedAnswerList);
+                            break;
+                        }
+                    }
                     listView.setAdapter(adapter);
                 }
             });
@@ -279,14 +273,17 @@ public class PanicRoomActivity extends AppCompatActivity {
 
     protected void onStart() {
         super.onStart();
-        panicSocket.emit("login", token);
+        panicSocket.emit("login", apiToken);
     }
 
     protected void onResume() {
         super.onResume();
-        numberOfAnswersArray.add("0");
-        adapter = new PanicRoomActivity.CustomAdapter(questionArray, numberOfAnswersArray);
         listView.setAdapter(adapter);
+        totalNumberOfQuestions = questions.size();
+    }
+
+    private void updateQuestionList(Context c) {
+
     }
 
     public void panicButtonClick(View view) {
@@ -305,17 +302,12 @@ public class PanicRoomActivity extends AppCompatActivity {
     }
 
     public class CustomAdapter extends BaseAdapter {
-        private ArrayList<String> questions = new ArrayList<>();
-        private ArrayList<String> numberOfAnswersAdapter = new ArrayList<>();
-
         CustomAdapter() {
             questions.clear();
-            numberOfAnswersAdapter.clear();
         }
 
-        public CustomAdapter(ArrayList<String> questionList, ArrayList<String> numAnswers) {
-            questions.addAll(questionList);
-            numberOfAnswersAdapter.addAll(numAnswers);
+        public CustomAdapter(Classes classObjectAdapter) {
+            questions.addAll(classObjectAdapter.getQuestions());
         }
 
         @Override
@@ -337,12 +329,14 @@ public class PanicRoomActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = getLayoutInflater();
             View row;
+            int numberOfAnswers;
             row = inflater.inflate(R.layout.question_list_row, parent, false);
             TextView questionText, numberOfAnswersTV;
             questionText = (TextView) row.findViewById(R.id.question);
             numberOfAnswersTV = (TextView) row.findViewById(R.id.numberOfAnswersTextView);
-            questionText.setText(questions.get(position));
-            numberOfAnswersTV.setText(numberOfAnswersAdapter.get(position));
+            questionText.setText(questions.get(position).getQuestion());
+            numberOfAnswers = questions.get(position).getAnswerList().size();
+            numberOfAnswersTV.setText(String.valueOf(numberOfAnswers));
             return (row);
         }
     }
