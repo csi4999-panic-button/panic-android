@@ -282,10 +282,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         totalNumberOfQuestions = questions.size();
     }
 
-    private void updateQuestionList(Context c) {
-
-    }
-
     public void panicButtonClick(View view) {
         panicState = !panicState;
         if(panicState) {

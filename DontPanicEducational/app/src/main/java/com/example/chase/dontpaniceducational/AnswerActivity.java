@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
@@ -24,6 +25,7 @@ public class AnswerActivity extends AppCompatActivity {
     private Intent intent;
     Question questionObject = new Question();
     Ion ion;
+    TextView questionToAnswer = (TextView) findViewById(R.id.numberOfAnswersTextView);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class AnswerActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
+
                         Toast.makeText(AnswerActivity.this, "Answer Posted", Toast.LENGTH_SHORT).show();
                         finish();
                     }
