@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -144,6 +145,8 @@ public class ClassActionsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         classObjectsArray.clear();
+        adapter = new CustomAdapter(classObjectsArray);
+        listView.setAdapter(adapter);
         updateClassList(this);
     }
 
@@ -269,15 +272,14 @@ public class ClassActionsActivity extends AppCompatActivity {
                                 break;
                             }
                             classObject.setQuestions(questionArrayList);
-                            classObjectsArray.add(classObject);
+                            adapter.add(classObject);
                         }
-                        adapter = new CustomAdapter(classObjectsArray);
-                        listView.setAdapter(adapter);
+//                        adapter.notifyDataSetChanged();
                     }
                 });
     }
 
-    public class CustomAdapter extends BaseAdapter {
+    public class CustomAdapter<Classes> extends ArrayAdapter<Classes> {
         private ArrayList<String> courseTitle = new ArrayList<>();
         private ArrayList<String> courseType = new ArrayList<>();
         private ArrayList<String> courseNumber = new ArrayList<>();
