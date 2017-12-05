@@ -152,8 +152,6 @@ public class ClassActionsActivity extends AppCompatActivity {
         super.onResume();
         joinLayout.setVisibility(View.GONE);
         createLayout.setVisibility(View.GONE);
-        adapter = new CustomAdapter(classObjectsArray);
-        listView.setAdapter(adapter);
     }
 
     private void updateClassList(Context c) {
@@ -273,6 +271,8 @@ public class ClassActionsActivity extends AppCompatActivity {
                             classObject.setQuestions(questionArrayList);
                             classObjectsArray.add(classObject);
                         }
+                        adapter = new CustomAdapter(classObjectsArray);
+                        listView.setAdapter(adapter);
                     }
                 });
     }
