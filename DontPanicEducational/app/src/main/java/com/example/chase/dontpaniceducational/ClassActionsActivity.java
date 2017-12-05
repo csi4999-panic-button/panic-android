@@ -10,13 +10,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -37,8 +35,8 @@ public class ClassActionsActivity extends AppCompatActivity {
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String token, editedString, userId;
     private JsonObject jsonObject, jsonQuestion, answerJsonObject;
-    private Classes classObject;
-    private ArrayList<Classes> classObjectsArray;
+    private Classroom classroomObject;
+    private ArrayList<Classroom> classroomObjectsArray;
     ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray, answerArrayString, voteArray;
     ArrayList<Integer> answerArrayInt;
     private ArrayList<Question> questionArrayList;
@@ -58,6 +56,23 @@ public class ClassActionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class_actions);
+        Ion.with(this)
+                .load(request.currentUser())
+                .setHeader("Authorization", token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        if(e != null) {
+                            Toast.makeText(ClassActionsActivity.this,"Try again",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        SharedPreferences.Editor editor = mySharedPreferences.edit();
+                        editor.putString("userId", result.get("_id").getAsString());
+                        editor.commit();
+                    }
+                });
         optionsButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         joinClassButton = (FloatingActionButton) findViewById(R.id.floatingActionButtonJoinClass);
         createClassButton = (FloatingActionButton) findViewById(R.id.floatingActionButtonCreateClass);
@@ -119,13 +134,13 @@ public class ClassActionsActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                classObject = classObjectsArray.get(i);
+                classroomObject = classroomObjectsArray.get(i);
                 Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
-                intent.putExtra("classObject", classObject);
+                intent.putExtra("classroomObject", classroomObject);
                 startActivity(intent);
             }
         });
-        classObjectsArray = new ArrayList<>();
+        classroomObjectsArray = new ArrayList<>();
         courseTypeArray = new ArrayList<>();
         courseNumberArray = new ArrayList<>();
         classTitleArray = new ArrayList<>();
@@ -144,8 +159,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        classObjectsArray.clear();
-        adapter = new CustomAdapter(classObjectsArray);
+        adapter = new CustomAdapter(classroomObjectsArray);
         listView.setAdapter(adapter);
         updateClassList(this);
     }
@@ -175,7 +189,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                         emptyObject.addProperty("empty", "");
                         for (int i = 0; i < result.size(); i++) {
                             jsonObject = result.get(i).getAsJsonObject();
-                            classObject = new Classes();
+                            classroomObject = new Classroom();
                             classQuestionJsonArray = new JsonArray();
                             classAnswerJsonArray = new JsonArray();
                             jsonQuestion = new JsonObject();
@@ -186,39 +200,40 @@ public class ClassActionsActivity extends AppCompatActivity {
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setClassId(classElement);
+                            classroomObject.setClassId(classElement);
                             if (jsonObject.has("schoolId")) {
                                 classElement = jsonObject.get("schoolId").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setSchoolId(classElement);
+                            classroomObject.setSchoolId(classElement);
                             if (jsonObject.has("courseType")) {
                                 classElement = jsonObject.get("courseType").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setCourseType(classElement);
+                            classroomObject.setCourseType(classElement);
                             if (jsonObject.has("courseNumber")) {
                                 classElement = jsonObject.get("courseNumber").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setCourseNumber(classElement);
+                            classroomObject.setCourseNumber(classElement);
                             if (jsonObject.has("sectionNumber")) {
                                 classElement = jsonObject.get("sectionNumber").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setSectionNumber(classElement);
+                            classroomObject.setSectionNumber(classElement);
                             if (jsonObject.has("courseTitle")) {
                                 classElement = jsonObject.get("courseTitle").toString();
                                 classElement = classElement.substring(1, classElement.length() - 1);
                             } else
                                 classElement = "";
-                            classObject.setCourseTitle(classElement);
+                            classroomObject.setCourseTitle(classElement);
                             if(jsonObject.getAsJsonArray("questions").size() > 0) {
                                 classQuestionJsonArray = jsonObject.getAsJsonArray("questions");
+                                questionArrayList.clear();
                                 for(int j = 0; j < classQuestionJsonArray.size(); j++) {
                                     questionObject = new Question();
                                     answerArrayList = new ArrayList<>();
@@ -267,45 +282,35 @@ public class ClassActionsActivity extends AppCompatActivity {
                                     }
                                     questionObject.setAnswerList(answerArrayList);
                                 }
-                                classObject.setQuestions(questionArrayList);
-                                classObjectsArray.add(classObject);
-                                break;
                             }
-                            classObject.setQuestions(questionArrayList);
-                            adapter.add(classObject);
+                            classroomObject.setQuestions(questionArrayList);
+                            classroomObjectsArray.add(classroomObject);
                         }
-//                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged();
                     }
                 });
     }
 
-    public class CustomAdapter<Classes> extends ArrayAdapter<Classes> {
-        private ArrayList<String> courseTitle = new ArrayList<>();
-        private ArrayList<String> courseType = new ArrayList<>();
-        private ArrayList<String> courseNumber = new ArrayList<>();
+    public class CustomAdapter extends BaseAdapter {
+
+        private ArrayList<Classroom> classesArrayList = new ArrayList<>();
 
         CustomAdapter() {
-            courseTitle.clear();
-            courseType.clear();
-            courseNumber.clear();
         }
 
-        public CustomAdapter(ArrayList<Classes> classList) {
-            for (Classes classes : classList) {
-                courseTitle.add(classes.getCourseTitle());
-                courseType.add(classes.getCourseType());
-                courseNumber.add(classes.getCourseNumber());
-            }
+        public CustomAdapter(ArrayList<Classroom> classList) {
+            classroomObjectsArray.clear();
+            this.classesArrayList = classList;
         }
 
         @Override
         public int getCount() {
-            return courseType.size();
+            return this.classesArrayList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return null;
+            return this.classesArrayList.get(position);
         }
 
         @Override
@@ -322,9 +327,9 @@ public class ClassActionsActivity extends AppCompatActivity {
             classType = (TextView) row.findViewById(R.id.classType);
             classNumber = (TextView) row.findViewById(R.id.classNumber);
             classTitle = (TextView) row.findViewById(R.id.classTitle);
-            classType.setText(courseType.get(position));
-            classNumber.setText(courseNumber.get(position));
-            classTitle.setText(courseTitle.get(position));
+            classType.setText(this.classesArrayList.get(position).getCourseType());
+            classNumber.setText(this.classesArrayList.get(position).getCourseNumber());
+            classTitle.setText(this.classesArrayList.get(position).getCourseTitle());
             return (row);
         }
     }

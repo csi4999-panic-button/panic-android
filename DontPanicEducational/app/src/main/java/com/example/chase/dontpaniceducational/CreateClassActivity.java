@@ -28,7 +28,7 @@ public class CreateClassActivity extends AppCompatActivity {
         classSectionNumber = (EditText) findViewById(R.id.editText_sectionNumber);
         classCourseTitle = (EditText) findViewById(R.id.editText_courseTitle);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        getSupportActionBar().setTitle("Create Class");
+        getSupportActionBar().setTitle("Create Classroom");
     }
 
     public void createClassClick(View view) {
@@ -68,6 +68,7 @@ public class CreateClassActivity extends AppCompatActivity {
                         Toast.makeText(CreateClassActivity.this, "success", Toast.LENGTH_SHORT).show();
                         //Intent intent = new Intent(CreateClassActivity.this, ClassActionsActivity.class);
                         //startActivity(intent);
+                        finish();
                     }
                 });
     }

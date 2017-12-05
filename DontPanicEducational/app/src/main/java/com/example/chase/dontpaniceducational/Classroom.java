@@ -3,12 +3,12 @@ package com.example.chase.dontpaniceducational;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Classes implements Serializable{
+public class Classroom implements Serializable{
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
     private ArrayList<Question> questions = new ArrayList<>();
 
-    public Classes() {}
+    public Classroom() {}
 
     public String getClassId() {
         return classId;

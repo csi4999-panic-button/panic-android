@@ -21,8 +21,8 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = CreateClassActivity.MODE_PRIVATE;
-    String username, password, token;
-    Ion ion;
+    private String username, password, token = "Bearer ";
+    private Ion ion;
     private RestRequests request = new RestRequests();
 
     @Override
@@ -32,9 +32,6 @@ public class LoginActivity extends AppCompatActivity {
         loginUsername = (EditText) findViewById(R.id.editText_login);
         loginPassword = (EditText) findViewById(R.id.editText_passwordLogin);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        token = mySharedPreferences.getString("token", null);
-        token = token.substring(1, token.length() - 1);
-        token = "Bearer ".concat(token);
         ion = Ion.getDefault(LoginActivity.this);
         ion.getCookieMiddleware().clear();
         getSupportActionBar().setTitle("Login");
@@ -53,23 +50,6 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        Ion.with(this)
-                .load(request.currentUser())
-                .setHeader("Authorization", token)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        if(e != null) {
-                            Toast.makeText(LoginActivity.this,
-                                    "Try again", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        SharedPreferences.Editor editor = mySharedPreferences.edit();
-                        editor.putString("userId", result.get("_id").toString());
-                        editor.commit();
-                    }
-                });
         JsonObject json = new JsonObject();
         json.addProperty("email",username);
         json.addProperty("password",password);
@@ -86,10 +66,11 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        token = token.concat(result.get("token").getAsString());
                         SharedPreferences.Editor editor = mySharedPreferences.edit();
                         editor.putString("token", result.get("token").toString());
                         editor.commit();
-                        Toast.makeText(LoginActivity.this, "logged in", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, ClassActionsActivity.class);
                         startActivity(intent);
                         finish();

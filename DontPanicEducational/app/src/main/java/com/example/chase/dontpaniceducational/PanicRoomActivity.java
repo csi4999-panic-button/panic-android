@@ -29,9 +29,6 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
@@ -51,7 +48,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     CustomAdapter adapter;
     private Button panicButton;
     private Intent intent;
-    Classes classObject;
+    Classroom classroomObject;
     Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
     private ArrayList<Answer> answers = new ArrayList<>();
@@ -63,7 +60,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         setContentView(R.layout.activity_panic_room);
         questionObject = new Question();
         intent = getIntent();
-        classObject = (Classes) intent.getSerializableExtra("classObject");
+        classroomObject = (Classroom) intent.getSerializableExtra("classroomObject");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
@@ -83,7 +80,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = classObject.getCourseType();
+        panicClassName = classroomObject.getCourseType();
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
@@ -94,7 +91,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                 e.printStackTrace();
             }
         }
-        classroom = classObject.getClassId();
+        classroom = classroomObject.getClassId();
         token = mySharedPreferences.getString("token", null);
         token = token.substring(1, token.length() - 1);
         apiToken = token;
@@ -131,7 +128,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             }
         });
         panicButton = (Button) findViewById(R.id.button_panicButton);
-        adapter = new PanicRoomActivity.CustomAdapter(classObject);
+        adapter = new PanicRoomActivity.CustomAdapter(classroomObject);
     }
 
     @Override
@@ -224,7 +221,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     question.setAnswerList(emptyAnswerList);
                     questions.add(question);
                     totalNumberOfQuestions = numberOfQuestions;
-                    classObject.setQuestions(questions);
+                    classroomObject.setQuestions(questions);
+                    adapter.notifyDataSetChanged();
                     listView.setAdapter(adapter);
                 }
             });
@@ -286,8 +284,9 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     }
 
     public class CustomAdapter extends BaseAdapter {
-        public CustomAdapter(Classes classObjectAdapter) {
-            questions.addAll(classObjectAdapter.getQuestions());
+
+        public CustomAdapter(Classroom classroomObjectAdapter) {
+            questions.addAll(classroomObjectAdapter.getQuestions());
         }
 
         @Override
