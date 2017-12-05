@@ -34,7 +34,7 @@ public class ClassActionsActivity extends AppCompatActivity {
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String token, editedString;
+    private String token, editedString, userId;
     private JsonObject jsonObject, jsonQuestion, answerJsonObject;
     private Classes classObject;
     private ArrayList<Classes> classObjectsArray;
@@ -152,6 +152,8 @@ public class ClassActionsActivity extends AppCompatActivity {
         super.onResume();
         joinLayout.setVisibility(View.GONE);
         createLayout.setVisibility(View.GONE);
+        adapter = new CustomAdapter(classObjectsArray);
+        listView.setAdapter(adapter);
     }
 
     private void updateClassList(Context c) {
@@ -162,13 +164,11 @@ public class ClassActionsActivity extends AppCompatActivity {
                 .setCallback(new FutureCallback<JsonArray>() {
                     @Override
                     public void onCompleted(Exception e, JsonArray result) {
-                        Log.d("Ion", "Received response from request");
                         if (e != null) {
                             Toast.makeText(ClassActionsActivity.this, "Try again",
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        Log.d("Ion", "Generating classIds");
                         String classElement;
                         JsonObject emptyObject = new JsonObject();
                         emptyObject.addProperty("empty", "");
@@ -258,6 +258,10 @@ public class ClassActionsActivity extends AppCompatActivity {
                                             answerObject.setResolution(true);
                                         else
                                             answerObject.setResolution(false);
+                                        if(answerJsonObject.get("mine").getAsBoolean())
+                                            answerObject.setMine(true);
+                                        else
+                                            answerObject.setMine(false);
                                         answerArrayList.add(answerObject);
                                     }
                                     questionObject.setAnswerList(answerArrayList);
@@ -269,9 +273,6 @@ public class ClassActionsActivity extends AppCompatActivity {
                             classObject.setQuestions(questionArrayList);
                             classObjectsArray.add(classObject);
                         }
-                        adapter = new CustomAdapter(classObjectsArray);
-                        listView.setAdapter(adapter);
-                        Log.d("Ion", "Successfully generated classIds");
                     }
                 });
     }

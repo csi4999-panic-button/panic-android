@@ -21,7 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = CreateClassActivity.MODE_PRIVATE;
-    String username, password;
+    String username, password, token;
     Ion ion;
     private RestRequests request = new RestRequests();
 
@@ -32,6 +32,9 @@ public class LoginActivity extends AppCompatActivity {
         loginUsername = (EditText) findViewById(R.id.editText_login);
         loginPassword = (EditText) findViewById(R.id.editText_passwordLogin);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        token = mySharedPreferences.getString("token", null);
+        token = token.substring(1, token.length() - 1);
+        token = "Bearer ".concat(token);
         ion = Ion.getDefault(LoginActivity.this);
         ion.getCookieMiddleware().clear();
         getSupportActionBar().setTitle("Login");
@@ -50,6 +53,23 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+        Ion.with(this)
+                .load(request.currentUser())
+                .setHeader("Authorization", token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        if(e != null) {
+                            Toast.makeText(LoginActivity.this,
+                                    "Try again", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        SharedPreferences.Editor editor = mySharedPreferences.edit();
+                        editor.putString("userId", result.get("_id").toString());
+                        editor.commit();
+                    }
+                });
         JsonObject json = new JsonObject();
         json.addProperty("email",username);
         json.addProperty("password",password);

@@ -1,6 +1,5 @@
 package com.example.chase.dontpaniceducational;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -27,11 +26,12 @@ import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
-
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
@@ -252,19 +252,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                         e.printStackTrace();
                         return;
                     }
-                    answer.setId(answerId);
-                    answer.setUser(mySharedPreferences.getString("token", null));
-                    answer.setAnswer(answerString);
-                    answer.setResolution(false);
-                    answer.setVotes(emptyAnswerList);
-                    for(Question currentQuestion : questions) {
-                        if(currentQuestion.getQuestionId().matches(questionId)) {
-                            ArrayList<Answer> updatedAnswerList = currentQuestion.getAnswerList();
-                            updatedAnswerList.add(answer);
-                            currentQuestion.setAnswerList(updatedAnswerList);
-                            break;
-                        }
-                    }
+                    adapter.notifyDataSetChanged();
                     listView.setAdapter(adapter);
                 }
             });
@@ -298,10 +286,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     }
 
     public class CustomAdapter extends BaseAdapter {
-        CustomAdapter() {
-            questions.clear();
-        }
-
         public CustomAdapter(Classes classObjectAdapter) {
             questions.addAll(classObjectAdapter.getQuestions());
         }
@@ -333,6 +317,14 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             questionText.setText(questions.get(position).getQuestion());
             numberOfAnswers = questions.get(position).getAnswerList().size();
             numberOfAnswersTV.setText(String.valueOf(numberOfAnswers));
+            for(Answer answer : questions.get(position).getAnswerList()) {
+                if(answer.isMine()) {
+                    numberOfAnswersTV.setBackgroundColor(Color.parseColor("#00ff00"));
+                    numberOfAnswersTV.setTextColor(Color.parseColor("#000000"));
+                }
+                if(answer.getUser().matches(mySharedPreferences.getString("userId", null)))
+                    answer.setMine(true);
+            }
             return (row);
         }
     }
