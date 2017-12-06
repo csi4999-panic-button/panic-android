@@ -11,7 +11,7 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 public class CreateClassActivity extends AppCompatActivity {
-    private EditText classSchoolID, classCourseType, classCourseNumber, classSectionNumber,
+    private EditText classCourseType, classCourseNumber, classSectionNumber,
             classCourseTitle;
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
@@ -22,7 +22,6 @@ public class CreateClassActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_class);
-        //classSchoolID = (EditText) findViewById(R.id.editText_schoolID);
         classCourseType = (EditText) findViewById(R.id.editText_courseType);
         classCourseNumber = (EditText) findViewById(R.id.editText_courseNumber);
         classSectionNumber = (EditText) findViewById(R.id.editText_sectionNumber);
@@ -32,7 +31,6 @@ public class CreateClassActivity extends AppCompatActivity {
     }
 
     public void createClassClick(View view) {
-        //final String schoolID = classSchoolID.getText().toString();
         final String courseType = classCourseType.getText().toString();
         final String courseNumber = classCourseNumber.getText().toString();
         final String sectionNumber = classSectionNumber.getText().toString();
@@ -43,7 +41,6 @@ public class CreateClassActivity extends AppCompatActivity {
             return;
         }
         JsonObject json = new JsonObject();
-        //json.addProperty("schoolId", schoolID);
         json.addProperty("courseType", courseType);
         json.addProperty("courseNumber", courseNumber);
         json.addProperty("sectionNumber", sectionNumber);
@@ -66,8 +63,6 @@ public class CreateClassActivity extends AppCompatActivity {
                         editor.putString("students", result.get("students").toString());
                         editor.commit();
                         Toast.makeText(CreateClassActivity.this, "success", Toast.LENGTH_SHORT).show();
-                        //Intent intent = new Intent(CreateClassActivity.this, ClassActionsActivity.class);
-                        //startActivity(intent);
                         finish();
                     }
                 });

@@ -171,7 +171,7 @@ public class ClassActionsActivity extends AppCompatActivity {
         createLayout.setVisibility(View.GONE);
     }
 
-    private void updateClassList(Context c) {
+    public void updateClassList(Context c) {
         Ion.with(this)
                 .load(request.classrooms())
                 .setHeader("Authorization", token)
@@ -294,9 +294,6 @@ public class ClassActionsActivity extends AppCompatActivity {
     public class CustomAdapter extends BaseAdapter {
 
         private ArrayList<Classroom> classesArrayList = new ArrayList<>();
-
-        CustomAdapter() {
-        }
 
         public CustomAdapter(ArrayList<Classroom> classList) {
             classroomObjectsArray.clear();
