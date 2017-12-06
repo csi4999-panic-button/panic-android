@@ -226,7 +226,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                     ArrayList<Question> updatedQuestionList = questions;
                                     ArrayList<Answer> answerArrayList = new ArrayList<>();
                                     ArrayList<String> votesArrayList = new ArrayList<>();
-                                    JsonObject jsonObject, newJsonQuestion, newJsonAnswer;
+                                    JsonObject newJsonQuestion, newJsonAnswer;
                                     JsonArray jsonQuestionArray = new JsonArray();
                                     JsonArray jsonAnswerArray;
                                     JsonArray jsonVotesArray = new JsonArray();
@@ -282,7 +282,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    String classroomId, questionId, answerId, answerString;
+                    final String classroomId, questionId, answerId, answerString;
                     int numberOfAnswers = 0;
                     Answer answer = new Answer();
                     ArrayList<String> emptyAnswerList = new ArrayList<>();
@@ -296,8 +296,54 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                         e.printStackTrace();
                         return;
                     }
-                    adapter.notifyDataSetChanged();
-                    listView.setAdapter(adapter);
+                    Ion.with(PanicRoomActivity.this)
+                            .load(request.classrooms().concat("/").concat(classroomId))
+                            .setHeader("Authorization", token)
+                            .asJsonObject()
+                            .setCallback(new FutureCallback<JsonObject>() {
+                                @Override
+                                public void onCompleted(Exception e, JsonObject result) {
+                                    JsonArray jsonQuestionArray, jsonAnswerArray, jsonVotesArray;
+                                    JsonObject jsonQuestionObject, jsonAnswerObject;
+                                    JsonElement jsonAnswerElement;
+                                    Answer answer = new Answer();
+                                    ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
+                                    ArrayList<String> votesArrayList = new ArrayList<>();
+                                    if (e != null) {
+                                        Toast.makeText(PanicRoomActivity.this, "Try again",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    if(result.has("questions")) {
+                                        jsonQuestionArray = result.get("questions").getAsJsonArray();
+                                        for(JsonElement question : jsonQuestionArray) {
+                                            jsonQuestionObject = question.getAsJsonObject();
+                                            if(jsonQuestionObject.get("_id").getAsString().matches(questionId)) {
+                                                jsonAnswerArray = jsonQuestionObject.get("answers").getAsJsonArray();
+                                                jsonAnswerElement = jsonAnswerArray.get(jsonAnswerArray.size() - 1);
+                                                jsonAnswerObject = jsonAnswerElement.getAsJsonObject();
+                                                answer.setAnswer(jsonAnswerObject.get("answer").getAsString());
+                                                answer.setUser(jsonAnswerObject.get("user").getAsString());
+                                                answer.setId(jsonAnswerObject.get("_id").getAsString());
+                                                jsonVotesArray = jsonAnswerObject.get("votes").getAsJsonArray();
+                                                for (JsonElement vote : jsonVotesArray)
+                                                    votesArrayList.add(vote.getAsString());
+                                                answer.setVotes(votesArrayList);
+                                                answer.setResolution(jsonAnswerObject.get("isResolution").getAsBoolean());
+                                                answer.setMine(jsonAnswerObject.get("mine").getAsBoolean());
+                                            }
+                                        }
+                                    }
+                                    for(Question question : questions) {
+                                        if(question.getQuestionId().matches(questionId)) {
+                                            updatedAnswerArrayList.addAll(question.getAnswerList());
+                                            updatedAnswerArrayList.add(answer);
+                                            question.setAnswerList(updatedAnswerArrayList);
+                                        }
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
                 }
             });
         }
