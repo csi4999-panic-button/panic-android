@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Answer implements Serializable {
     private String user, id, answer;
     private ArrayList<String> votes = new ArrayList<>();
-    private boolean resolution;
+    private boolean resolution, mine;
 
     public String getAnswer() {
         return answer;
@@ -46,5 +46,13 @@ public class Answer implements Serializable {
 
     public void setResolution(boolean resolution) {
         this.resolution = resolution;
+    }
+
+    public boolean isMine() {
+        return mine;
+    }
+
+    public void setMine(boolean mine) {
+        this.mine = mine;
     }
 }

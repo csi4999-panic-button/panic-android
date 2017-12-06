@@ -22,4 +22,8 @@ public class RestRequests {
     public String register() {
         return "http://www.panic-button.stream/register";
     }
+
+    public String currentUser() {
+        return "http://www.panic-button.stream/api/v1/users/me";
+    }
 }

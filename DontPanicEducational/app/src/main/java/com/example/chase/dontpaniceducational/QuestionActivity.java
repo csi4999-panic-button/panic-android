@@ -18,9 +18,6 @@ public class QuestionActivity extends AppCompatActivity {
     private EditText question;
     private String questionAsked, classroomId;
     private String url = "http://www.panic-button.stream/api/v1/classrooms/";
-    private SharedPreferences mySharedPreferences;
-    public static String MY_PREFS = "MY_PREFS";
-    int prefMode = CreateClassActivity.MODE_PRIVATE;
     Ion ion;
     private boolean state;
     private Intent intent;
@@ -34,7 +31,6 @@ public class QuestionActivity extends AppCompatActivity {
         sendQuestion = (Button) findViewById(R.id.sendQuestion);
         resetQuestion = (Button) findViewById(R.id.resetQuestion);
         question = (EditText) findViewById(R.id.questionToAsk);
-        mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
         ion = Ion.getDefault(QuestionActivity.this);
         getSupportActionBar().setTitle("Question?");
     }

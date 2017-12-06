@@ -7,7 +7,7 @@ public class Question implements Serializable {
     private String question, user, id;
     private ArrayList<Answer> answerList = new ArrayList<>();
     private int resolution, votes;
-    private boolean voted;
+    private boolean voted, mine;
 
     public Question() {}
 
@@ -65,5 +65,13 @@ public class Question implements Serializable {
 
     public void setVoted(boolean voted) {
         this.voted = voted;
+    }
+
+    public boolean isMine() {
+        return mine;
+    }
+
+    public void setMine(boolean mine) {
+        this.mine = mine;
     }
 }

@@ -21,8 +21,8 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = CreateClassActivity.MODE_PRIVATE;
-    String username, password;
-    Ion ion;
+    private String username, password, token = "Bearer ";
+    private Ion ion;
     private RestRequests request = new RestRequests();
 
     @Override
@@ -66,10 +66,11 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        token = token.concat(result.get("token").getAsString());
                         SharedPreferences.Editor editor = mySharedPreferences.edit();
                         editor.putString("token", result.get("token").toString());
                         editor.commit();
-                        Toast.makeText(LoginActivity.this, "logged in", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, ClassActionsActivity.class);
                         startActivity(intent);
                         finish();

@@ -20,7 +20,7 @@ public class JoinClassActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_class);
         classroom = (EditText) findViewById(R.id.editText_classToJoin);
-        getSupportActionBar().setTitle("Join Class");
+        getSupportActionBar().setTitle("Join Classroom");
     }
 
     public void joinClass(View view) {

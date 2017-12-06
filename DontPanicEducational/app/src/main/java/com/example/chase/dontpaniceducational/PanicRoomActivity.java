@@ -1,6 +1,5 @@
 package com.example.chase.dontpaniceducational;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -24,18 +23,21 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
-import org.json.JSONObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
+import org.json.JSONObject;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
-    private Socket panicSocket, questionSocket, answerSocket;
+    private Socket panicSocket;
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
@@ -51,11 +53,12 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     CustomAdapter adapter;
     private Button panicButton;
     private Intent intent;
-    Classes classObject;
+    Classroom classroomObject;
     Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
     private ArrayList<Answer> answers = new ArrayList<>();
     private int totalNumberOfQuestions = 0;
+    private ClassActionsActivity classActionsActivityObject = new ClassActionsActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +66,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         setContentView(R.layout.activity_panic_room);
         questionObject = new Question();
         intent = getIntent();
-        classObject = (Classes) intent.getSerializableExtra("classObject");
+        classroomObject = (Classroom) intent.getSerializableExtra("classroomObject");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
@@ -83,18 +86,16 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = classObject.getCourseType();
+        panicClassName = classroomObject.getCourseType();
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
                 panicSocket = IO.socket(request.website());
-                questionSocket = IO.socket(request.website());
-                answerSocket = IO.socket(request.website());
             } catch(URISyntaxException e){
                 e.printStackTrace();
             }
         }
-        classroom = classObject.getClassId();
+        classroom = classroomObject.getClassId();
         token = mySharedPreferences.getString("token", null);
         token = token.substring(1, token.length() - 1);
         apiToken = token;
@@ -131,7 +132,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             }
         });
         panicButton = (Button) findViewById(R.id.button_panicButton);
-        adapter = new PanicRoomActivity.CustomAdapter(classObject);
+        adapter = new PanicRoomActivity.CustomAdapter(classroomObject);
     }
 
     @Override
@@ -215,17 +216,60 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                         e.printStackTrace();
                         return;
                     }
-                    question.setQuestion(questionString);
-                    question.setQuestionId(questionId);
-                    question.setUser(mySharedPreferences.getString("token", null));
-                    question.setVotes(0);
-                    question.setVoted(false);
-                    question.setResolution(-1);
-                    question.setAnswerList(emptyAnswerList);
-                    questions.add(question);
-                    totalNumberOfQuestions = numberOfQuestions;
-                    classObject.setQuestions(questions);
-                    listView.setAdapter(adapter);
+                    Ion.with(PanicRoomActivity.this)
+                            .load(request.classrooms().concat("/").concat(classID))
+                            .setHeader("Authorization", token)
+                            .asJsonObject()
+                            .setCallback(new FutureCallback<JsonObject>() {
+                                @Override
+                                public void onCompleted(Exception e, JsonObject result) {
+                                    ArrayList<Question> updatedQuestionList = questions;
+                                    ArrayList<Answer> answerArrayList = new ArrayList<>();
+                                    ArrayList<String> votesArrayList = new ArrayList<>();
+                                    JsonObject newJsonQuestion, newJsonAnswer;
+                                    JsonArray jsonQuestionArray = new JsonArray();
+                                    JsonArray jsonAnswerArray;
+                                    JsonArray jsonVotesArray = new JsonArray();
+                                    JsonElement jsonQuestionArrayElement, jsonAnswerArrayElement;
+                                    Question newQuestion = new Question();
+                                    Answer answer = new Answer();
+                                    if (e != null) {
+                                        Toast.makeText(PanicRoomActivity.this, "Try again",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    if (result.has("questions")) {
+                                        jsonQuestionArray.addAll(result.get("questions").getAsJsonArray());
+                                        jsonQuestionArrayElement = jsonQuestionArray.get(jsonQuestionArray.size() - 1);
+                                        newJsonQuestion = jsonQuestionArrayElement.getAsJsonObject();
+                                        newQuestion.setResolution(newJsonQuestion.get("resolution").getAsInt());
+                                        newQuestion.setVoted(newJsonQuestion.get("voted").getAsBoolean());
+                                        newQuestion.setVotes(newJsonQuestion.get("votes").getAsJsonArray().size());
+                                        newQuestion.setUser(newJsonQuestion.get("user").getAsString());
+                                        newQuestion.setQuestion(newJsonQuestion.get("question").getAsString());
+                                        newQuestion.setQuestionId(newJsonQuestion.get("_id").getAsString());
+                                        jsonAnswerArray = newJsonQuestion.get("answers").getAsJsonArray();
+                                        for (JsonElement answerElement : jsonAnswerArray) {
+                                            newJsonAnswer = answerElement.getAsJsonObject();
+                                            answer.setMine(newJsonAnswer.get("mine").getAsBoolean());
+                                            answer.setResolution(newJsonAnswer.get("isResolution").getAsBoolean());
+                                            jsonVotesArray = newJsonAnswer.get("votes").getAsJsonArray();
+                                            for (JsonElement vote : jsonVotesArray)
+                                                votesArrayList.add(vote.getAsString());
+                                            answer.setVotes(votesArrayList);
+                                            answer.setId(newJsonAnswer.get("_id").getAsString());
+                                            answer.setUser(newJsonAnswer.get("user").getAsString());
+                                            answer.setAnswer(newJsonAnswer.get("answer").getAsString());
+                                            answerArrayList.add(answer);
+                                        }
+                                        newQuestion.setAnswerList(answerArrayList);
+                                        newQuestion.setMine(newJsonQuestion.get("mine").getAsBoolean());
+                                        updatedQuestionList.add(newQuestion);
+                                    }
+                                    classroomObject.setQuestions(updatedQuestionList);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
                 }
             });
         }
@@ -238,7 +282,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
-                    String classroomId, questionId, answerId, answerString;
+                    final String classroomId, questionId, answerId, answerString;
                     int numberOfAnswers = 0;
                     Answer answer = new Answer();
                     ArrayList<String> emptyAnswerList = new ArrayList<>();
@@ -252,20 +296,54 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                         e.printStackTrace();
                         return;
                     }
-                    answer.setId(answerId);
-                    answer.setUser(mySharedPreferences.getString("token", null));
-                    answer.setAnswer(answerString);
-                    answer.setResolution(false);
-                    answer.setVotes(emptyAnswerList);
-                    for(Question currentQuestion : questions) {
-                        if(currentQuestion.getQuestionId().matches(questionId)) {
-                            ArrayList<Answer> updatedAnswerList = currentQuestion.getAnswerList();
-                            updatedAnswerList.add(answer);
-                            currentQuestion.setAnswerList(updatedAnswerList);
-                            break;
-                        }
-                    }
-                    listView.setAdapter(adapter);
+                    Ion.with(PanicRoomActivity.this)
+                            .load(request.classrooms().concat("/").concat(classroomId))
+                            .setHeader("Authorization", token)
+                            .asJsonObject()
+                            .setCallback(new FutureCallback<JsonObject>() {
+                                @Override
+                                public void onCompleted(Exception e, JsonObject result) {
+                                    JsonArray jsonQuestionArray, jsonAnswerArray, jsonVotesArray;
+                                    JsonObject jsonQuestionObject, jsonAnswerObject;
+                                    JsonElement jsonAnswerElement;
+                                    Answer answer = new Answer();
+                                    ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
+                                    ArrayList<String> votesArrayList = new ArrayList<>();
+                                    if (e != null) {
+                                        Toast.makeText(PanicRoomActivity.this, "Try again",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    if(result.has("questions")) {
+                                        jsonQuestionArray = result.get("questions").getAsJsonArray();
+                                        for(JsonElement question : jsonQuestionArray) {
+                                            jsonQuestionObject = question.getAsJsonObject();
+                                            if(jsonQuestionObject.get("_id").getAsString().matches(questionId)) {
+                                                jsonAnswerArray = jsonQuestionObject.get("answers").getAsJsonArray();
+                                                jsonAnswerElement = jsonAnswerArray.get(jsonAnswerArray.size() - 1);
+                                                jsonAnswerObject = jsonAnswerElement.getAsJsonObject();
+                                                answer.setAnswer(jsonAnswerObject.get("answer").getAsString());
+                                                answer.setUser(jsonAnswerObject.get("user").getAsString());
+                                                answer.setId(jsonAnswerObject.get("_id").getAsString());
+                                                jsonVotesArray = jsonAnswerObject.get("votes").getAsJsonArray();
+                                                for (JsonElement vote : jsonVotesArray)
+                                                    votesArrayList.add(vote.getAsString());
+                                                answer.setVotes(votesArrayList);
+                                                answer.setResolution(jsonAnswerObject.get("isResolution").getAsBoolean());
+                                                answer.setMine(jsonAnswerObject.get("mine").getAsBoolean());
+                                            }
+                                        }
+                                    }
+                                    for(Question question : questions) {
+                                        if(question.getQuestionId().matches(questionId)) {
+                                            updatedAnswerArrayList.addAll(question.getAnswerList());
+                                            updatedAnswerArrayList.add(answer);
+                                            question.setAnswerList(updatedAnswerArrayList);
+                                        }
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
                 }
             });
         }
@@ -278,12 +356,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
 
     protected void onResume() {
         super.onResume();
+        adapter.notifyDataSetChanged();
         listView.setAdapter(adapter);
-        totalNumberOfQuestions = questions.size();
-    }
-
-    private void updateQuestionList(Context c) {
-
     }
 
     public void panicButtonClick(View view) {
@@ -302,12 +376,13 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     }
 
     public class CustomAdapter extends BaseAdapter {
-        CustomAdapter() {
-            questions.clear();
-        }
 
-        public CustomAdapter(Classes classObjectAdapter) {
-            questions.addAll(classObjectAdapter.getQuestions());
+        private ArrayList<Question> questionArrayList = new ArrayList<>();
+
+        public CustomAdapter(Classroom classroomObjectAdapter) {
+            questions.clear();
+            this.questionArrayList = classroomObjectAdapter.getQuestions();
+            questions = this.questionArrayList;
         }
 
         @Override
@@ -334,9 +409,17 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             TextView questionText, numberOfAnswersTV;
             questionText = (TextView) row.findViewById(R.id.question);
             numberOfAnswersTV = (TextView) row.findViewById(R.id.numberOfAnswersTextView);
-            questionText.setText(questions.get(position).getQuestion());
-            numberOfAnswers = questions.get(position).getAnswerList().size();
+            questionText.setText(this.questionArrayList.get(position).getQuestion());
+            numberOfAnswers = this.questionArrayList.get(position).getAnswerList().size();
             numberOfAnswersTV.setText(String.valueOf(numberOfAnswers));
+            for(Answer answer : this.questionArrayList.get(position).getAnswerList()) {
+                if(answer.isMine()) {
+                    numberOfAnswersTV.setBackgroundColor(Color.parseColor("#00ff00"));
+                    numberOfAnswersTV.setTextColor(Color.parseColor("#000000"));
+                }
+                if(answer.getUser().matches(mySharedPreferences.getString("userId", null)))
+                    answer.setMine(true);
+            }
             return (row);
         }
     }
