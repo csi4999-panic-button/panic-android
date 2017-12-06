@@ -62,7 +62,7 @@ public class RegisterActivity extends AppCompatActivity {
                         editor.putString("apiToken", result.get("apiToken").toString());
                         editor.commit();
                         Toast.makeText(RegisterActivity.this, result.get("apiToken").toString(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(RegisterActivity.this, ClassActionsActivity.class);
+                        Intent intent = new Intent(RegisterActivity.this, ClassroomListActivity.class);
                         startActivity(intent);
                     }
                 });

@@ -31,7 +31,7 @@
             android:name=".AboutUsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ClassActionsActivity"
+            android:name=".ClassroomListActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".CreateClassActivity"

@@ -58,7 +58,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     private ArrayList<Question> questions = new ArrayList<>();
     private ArrayList<Answer> answers = new ArrayList<>();
     private int totalNumberOfQuestions = 0;
-    private ClassActionsActivity classActionsActivityObject = new ClassActionsActivity();
+    private ClassroomListActivity classroomListActivityObject = new ClassroomListActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,7 +6,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.chase.dontpaniceducational.ClassActionsActivity">
+    tools:context="com.example.chase.dontpaniceducational.ClassroomListActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

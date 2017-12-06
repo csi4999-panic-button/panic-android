@@ -10,10 +10,6 @@ import android.widget.Toast;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.cookie.CookieMiddleware;
-
-import java.net.CookieManager;
-import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -71,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("token", result.get("token").toString());
                         editor.commit();
                         Toast.makeText(LoginActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this, ClassActionsActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, ClassroomListActivity.class);
                         startActivity(intent);
                         finish();
                     }

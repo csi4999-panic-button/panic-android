@@ -28,7 +28,7 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
 
-public class ClassActionsActivity extends AppCompatActivity {
+public class ClassroomListActivity extends AppCompatActivity {
     private ListView listView;
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
@@ -64,7 +64,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         if(e != null) {
-                            Toast.makeText(ClassActionsActivity.this,"Try again",
+                            Toast.makeText(ClassroomListActivity.this,"Try again",
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -96,14 +96,14 @@ public class ClassActionsActivity extends AppCompatActivity {
         joinClassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ClassActionsActivity.this, JoinClassActivity.class);
+                Intent intent = new Intent(ClassroomListActivity.this, JoinClassActivity.class);
                 startActivity(intent);
             }
         });
         createClassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ClassActionsActivity.this, CreateClassActivity.class);
+                Intent intent = new Intent(ClassroomListActivity.this, CreateClassActivity.class);
                 startActivity(intent);
             }
         });
@@ -118,9 +118,9 @@ public class ClassActionsActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 if(id == R.id.account)
-                    Toast.makeText(ClassActionsActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ClassroomListActivity.this, "Success", Toast.LENGTH_SHORT).show();
                 else if(id == R.id.logout)
-                    Toast.makeText(ClassActionsActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ClassroomListActivity.this, "Success", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -135,7 +135,7 @@ public class ClassActionsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 classroomObject = classroomObjectsArray.get(i);
-                Intent intent = new Intent(ClassActionsActivity.this, PanicRoomActivity.class);
+                Intent intent = new Intent(ClassroomListActivity.this, PanicRoomActivity.class);
                 intent.putExtra("classroomObject", classroomObject);
                 startActivity(intent);
             }
@@ -180,7 +180,7 @@ public class ClassActionsActivity extends AppCompatActivity {
                     @Override
                     public void onCompleted(Exception e, JsonArray result) {
                         if (e != null) {
-                            Toast.makeText(ClassActionsActivity.this, "Try again",
+                            Toast.makeText(ClassroomListActivity.this, "Try again",
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
