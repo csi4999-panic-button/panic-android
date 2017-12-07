@@ -43,7 +43,8 @@
             android:name=".PanicRoomActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".QuestionActivity" />
-        <activity android:name=".AnswerActivity"></activity>
+        <activity android:name=".AnswerActivity" />
+        <activity android:name=".AnswerListActivity"></activity>
     </application>
 
 </manifest>

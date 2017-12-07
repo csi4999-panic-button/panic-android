@@ -29,7 +29,6 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-
 import org.json.JSONObject;
 import java.io.Serializable;
 import java.net.URISyntaxException;
@@ -38,23 +37,23 @@ import java.util.ArrayList;
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
     private TextView numberOfPanicStudents;
     private Socket panicSocket;
-    SharedPreferences mySharedPreferences;
+    private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
     private String classroom, token, apiToken;
     private JsonObject jsonObject;
     private boolean panicState;
     private RestRequests request = new RestRequests();
-    DrawerLayout drawerLayout;
+    private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle barDrawerToggle;
-    String panicClassName;
-    FloatingActionButton questionButton;
-    ListView listView;
-    CustomAdapter adapter;
+    private String panicClassName;
+    private FloatingActionButton questionButton;
+    private ListView listView;
+    private CustomAdapter adapter;
     private Button panicButton;
     private Intent intent;
-    Classroom classroomObject;
-    Question questionObject;
+    private Classroom classroomObject;
+    private Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
 
     @Override
@@ -122,7 +121,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 questionObject = questions.get(i);
-                Intent intent = new Intent(PanicRoomActivity.this, AnswerActivity.class);
+                Intent intent = new Intent(PanicRoomActivity.this, AnswerListActivity.class);
+                intent.putExtra("answerList", questionObject.getAnswerList());
                 intent.putExtra("questionObject", questionObject);
                 intent.putExtra("classroom", classroom);
                 startActivity(intent);
@@ -237,7 +237,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                     }
                                     if (result.has("questions")) {
                                         jsonQuestionArray.addAll(result.get("questions").getAsJsonArray());
-                                        jsonQuestionArrayElement = jsonQuestionArray.get(jsonQuestionArray.size() - 1);
+                                        jsonQuestionArrayElement = jsonQuestionArray.get(
+                                                jsonQuestionArray.size() - 1);
                                         newJsonQuestion = jsonQuestionArrayElement.getAsJsonObject();
                                         newQuestion.setResolution(newJsonQuestion.get("resolution").getAsInt());
                                         newQuestion.setVoted(newJsonQuestion.get("voted").getAsBoolean());
@@ -323,7 +324,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                                 for (JsonElement vote : jsonVotesArray)
                                                     votesArrayList.add(vote.getAsString());
                                                 answer.setVotes(votesArrayList);
-                                                answer.setResolution(jsonAnswerObject.get("isResolution").getAsBoolean());
+                                                answer.setResolution(jsonAnswerObject.get(
+                                                        "isResolution").getAsBoolean());
                                                 answer.setMine(jsonAnswerObject.get("mine").getAsBoolean());
                                             }
                                         }
