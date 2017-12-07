@@ -33,7 +33,7 @@ public class ClassroomListActivity extends AppCompatActivity {
     SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
     int prefMode = JoinClassActivity.MODE_PRIVATE;
-    private String token, editedString, userId;
+    private String token, editedString;
     private JsonObject jsonObject, jsonQuestion, answerJsonObject;
     private Classroom classroomObject;
     private ArrayList<Classroom> classroomObjectsArray;
@@ -242,9 +242,6 @@ public class ClassroomListActivity extends AppCompatActivity {
                                     editedString = jsonQuestion.get("question").toString();
                                     editedString = editedString.substring(1, editedString.length() - 1);
                                     questionObject.setQuestion(editedString);
-                                    editedString = jsonQuestion.get("user").toString();
-                                    editedString = editedString.substring(1, editedString.length() - 1);
-                                    questionObject.setUser(editedString);
                                     editedString = jsonQuestion.get("_id").toString();
                                     editedString = editedString.substring(1, editedString.length() - 1);
                                     questionObject.setQuestionId(editedString);
@@ -261,9 +258,6 @@ public class ClassroomListActivity extends AppCompatActivity {
                                         editedString = answerJsonObject.get("answer").toString();
                                         editedString = editedString.substring(1, editedString.length() - 1);
                                         answerObject.setAnswer(editedString);
-                                        editedString = answerJsonObject.get("user").toString();
-                                        editedString = editedString.substring(1, editedString.length() - 1);
-                                        answerObject.setUser(editedString);
                                         editedString = answerJsonObject.get("_id").toString();
                                         editedString = editedString.substring(1, editedString.length() - 1);
                                         answerObject.setId(editedString);

@@ -56,9 +56,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     Classroom classroomObject;
     Question questionObject;
     private ArrayList<Question> questions = new ArrayList<>();
-    private ArrayList<Answer> answers = new ArrayList<>();
-    private int totalNumberOfQuestions = 0;
-    private ClassroomListActivity classroomListActivityObject = new ClassroomListActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,7 +242,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                         newQuestion.setResolution(newJsonQuestion.get("resolution").getAsInt());
                                         newQuestion.setVoted(newJsonQuestion.get("voted").getAsBoolean());
                                         newQuestion.setVotes(newJsonQuestion.get("votes").getAsJsonArray().size());
-                                        newQuestion.setUser(newJsonQuestion.get("user").getAsString());
                                         newQuestion.setQuestion(newJsonQuestion.get("question").getAsString());
                                         newQuestion.setQuestionId(newJsonQuestion.get("_id").getAsString());
                                         jsonAnswerArray = newJsonQuestion.get("answers").getAsJsonArray();
@@ -258,7 +254,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                                 votesArrayList.add(vote.getAsString());
                                             answer.setVotes(votesArrayList);
                                             answer.setId(newJsonAnswer.get("_id").getAsString());
-                                            answer.setUser(newJsonAnswer.get("user").getAsString());
                                             answer.setAnswer(newJsonAnswer.get("answer").getAsString());
                                             answerArrayList.add(answer);
                                         }
@@ -323,7 +318,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                                                 jsonAnswerElement = jsonAnswerArray.get(jsonAnswerArray.size() - 1);
                                                 jsonAnswerObject = jsonAnswerElement.getAsJsonObject();
                                                 answer.setAnswer(jsonAnswerObject.get("answer").getAsString());
-                                                answer.setUser(jsonAnswerObject.get("user").getAsString());
                                                 answer.setId(jsonAnswerObject.get("_id").getAsString());
                                                 jsonVotesArray = jsonAnswerObject.get("votes").getAsJsonArray();
                                                 for (JsonElement vote : jsonVotesArray)
@@ -417,8 +411,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     numberOfAnswersTV.setBackgroundColor(Color.parseColor("#00ff00"));
                     numberOfAnswersTV.setTextColor(Color.parseColor("#000000"));
                 }
-                if(answer.getUser().matches(mySharedPreferences.getString("userId", null)))
-                    answer.setMine(true);
             }
             return (row);
         }
