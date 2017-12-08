@@ -1,6 +1,7 @@
 package com.example.chase.dontpaniceducational;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -17,6 +18,17 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+import org.json.JSONObject;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class AnswerListActivity extends AppCompatActivity {
@@ -24,26 +36,47 @@ public class AnswerListActivity extends AppCompatActivity {
     private ActionBarDrawerToggle barDrawerToggle;
     private FloatingActionButton answerButton;
     private ListView listView;
-    private CustomAdapter adapter;
+    private AnswerListActivity.CustomAdapter adapter;
     private ArrayList<Answer> answerArrayList = new ArrayList<>();
     private Intent intent;
+    private String classroom, token, apiToken;
+    private RestRequests request = new RestRequests();
+    private SharedPreferences mySharedPreferences;
+    public static String MY_PREFS = "MY_PREFS";
+    int prefMode = JoinClassActivity.MODE_PRIVATE;
+    private ArrayList<Question> questions = new ArrayList<>();
+    private Socket answerSocket;
     private Question questionObject = new Question();
-    private Classroom classroom = new Classroom();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_answer_list);
+        mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
+        token = mySharedPreferences.getString("token", null);
+        token = token.substring(1, token.length() - 1);
+        apiToken = token;
+        token = "Bearer ".concat(token);
         intent = getIntent();
-        answerArrayList = (ArrayList<Answer>) intent.getSerializableExtra("answerArrayList");
+        {
+            try {
+                answerSocket = IO.socket(request.website());
+            } catch(URISyntaxException e){
+                e.printStackTrace();
+            }
+        }
+        answerSocket.on("new_answer", newAnswerListener);
+        answerSocket.connect();
+        answerSocket.emit("login", apiToken);
         questionObject = (Question) intent.getSerializableExtra("questionObject");
-        classroom = (Classroom) intent.getSerializableExtra("classroom");
+        classroom = (String) intent.getSerializableExtra("classroom");
+        questions = (ArrayList<Question>) intent.getSerializableExtra("questionList");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.syncState();
-        NavigationView nav_view = (NavigationView) findViewById(R.id.navViewPanic);
+        NavigationView nav_view = (NavigationView) findViewById(R.id.navViewAnswer);
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -62,6 +95,8 @@ public class AnswerListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AnswerListActivity.this, AnswerActivity.class);
+                intent.putExtra("questionObject", questionObject);
+                intent.putExtra("classroom", classroom);
                 startActivity(intent);
             }
         });
@@ -69,18 +104,93 @@ public class AnswerListActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(AnswerListActivity.this, AnswerActivity.class);
-                intent.putExtra("questionObject", questionObject);
-                intent.putExtra("classroom", classroom);
-                startActivity(intent);
             }
         });
-        adapter = new CustomAdapter(answerArrayList);
+        adapter = new AnswerListActivity.CustomAdapter(questionObject);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return barDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    private Emitter.Listener newAnswerListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            AnswerListActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    final String classroomId, questionId, answerId, answerString;
+                    int numberOfAnswers = 0;
+                    Answer answer = new Answer();
+                    ArrayList<String> emptyAnswerList = new ArrayList<>();
+                    try {
+                        classroomId = data.getString("classroom");
+                        questionId = data.getString("questionId");
+                        answerId = data.getString("answerId");
+                        answerString = data.getString("answerStr");
+                        numberOfAnswers = data.getInt("numberOfAnswers");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    Ion.with(AnswerListActivity.this)
+                            .load(request.classrooms().concat("/").concat(classroomId))
+                            .setHeader("Authorization", token)
+                            .asJsonObject()
+                            .setCallback(new FutureCallback<JsonObject>() {
+                                @Override
+                                public void onCompleted(Exception e, JsonObject result) {
+                                    JsonArray jsonQuestionArray, jsonAnswerArray, jsonVotesArray;
+                                    JsonObject jsonQuestionObject, jsonAnswerObject;
+                                    JsonElement jsonAnswerElement;
+                                    Answer answer = new Answer();
+                                    ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
+                                    ArrayList<String> votesArrayList = new ArrayList<>();
+                                    if (e != null) {
+                                        Toast.makeText(AnswerListActivity.this, "Try again",
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    if(result.has("questions")) {
+                                        jsonQuestionArray = result.get("questions").getAsJsonArray();
+                                        for(JsonElement question : jsonQuestionArray) {
+                                            jsonQuestionObject = question.getAsJsonObject();
+                                            if(jsonQuestionObject.get("_id").getAsString().matches(questionId)) {
+                                                jsonAnswerArray = jsonQuestionObject.get("answers").getAsJsonArray();
+                                                jsonAnswerElement = jsonAnswerArray.get(jsonAnswerArray.size() - 1);
+                                                jsonAnswerObject = jsonAnswerElement.getAsJsonObject();
+                                                answer.setAnswer(jsonAnswerObject.get("answer").getAsString());
+                                                answer.setId(jsonAnswerObject.get("_id").getAsString());
+                                                jsonVotesArray = jsonAnswerObject.get("votes").getAsJsonArray();
+                                                for (JsonElement vote : jsonVotesArray)
+                                                    votesArrayList.add(vote.getAsString());
+                                                answer.setVotes(votesArrayList);
+                                                answer.setResolution(jsonAnswerObject.get(
+                                                        "isResolution").getAsBoolean());
+                                                answer.setMine(jsonAnswerObject.get("mine").getAsBoolean());
+                                            }
+                                        }
+                                    }
+                                    for(Question question : questions) {
+                                        if(question.getQuestionId().matches(questionId)) {
+                                            updatedAnswerArrayList.addAll(question.getAnswerList());
+                                            updatedAnswerArrayList.add(answer);
+                                            question.setAnswerList(updatedAnswerArrayList);
+                                        }
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                }
+            });
+        }
+    };
+
+    protected void onStart() {
+        super.onStart();
+        answerSocket.emit("login", apiToken);
     }
 
     protected void onResume() {
@@ -93,8 +203,10 @@ public class AnswerListActivity extends AppCompatActivity {
 
         private ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
 
-        public CustomAdapter(ArrayList<Answer> answerArrayListAdapter) {
-            this.updatedAnswerArrayList = answerArrayListAdapter;
+        public CustomAdapter(Question questionObject) {
+            answerArrayList.clear();
+            this.updatedAnswerArrayList = questionObject.getAnswerList();
+            answerArrayList = this.updatedAnswerArrayList;
         }
 
         @Override

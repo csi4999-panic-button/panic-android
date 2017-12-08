@@ -122,9 +122,9 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 questionObject = questions.get(i);
                 Intent intent = new Intent(PanicRoomActivity.this, AnswerListActivity.class);
-                intent.putExtra("answerList", questionObject.getAnswerList());
                 intent.putExtra("questionObject", questionObject);
                 intent.putExtra("classroom", classroom);
+                intent.putExtra("questionList", questions);
                 startActivity(intent);
             }
         });
