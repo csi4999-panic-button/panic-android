@@ -42,8 +42,15 @@
         <activity
             android:name=".PanicRoomActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".QuestionActivity" />
-        <activity android:name=".AnswerActivity"></activity>
+        <activity
+            android:name=".QuestionActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".AnswerActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".AnswerListActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

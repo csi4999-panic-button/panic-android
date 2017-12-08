@@ -55,7 +55,7 @@ public class ClassroomListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_class_actions);
+        setContentView(R.layout.activity_classroom_list);
         Ion.with(this)
                 .load(request.currentUser())
                 .setHeader("Authorization", token)
