@@ -14,13 +14,25 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="50dp">
+            <TextView
+                android:id="@+id/textView_topic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/icons"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <View
                 android:id="@+id/fakeView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:layout_marginTop="50dp"/>
 
             <Button
                 android:id="@+id/button_panicButton"
@@ -33,7 +45,8 @@
                 android:text="@string/panicButton"
                 android:textColor="@color/colorIcons"
                 android:textSize="40sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"/>
 
             <TextView
                 android:id="@+id/textView_numberOfPanickedStudents"
@@ -45,7 +58,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorIcons"
                 android:textSize="40sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="50dp"/>
         </RelativeLayout>
 
         <android.support.design.widget.FloatingActionButton
@@ -67,8 +81,7 @@
             android:id="@+id/questionsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="100dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="150dp"
             android:background="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

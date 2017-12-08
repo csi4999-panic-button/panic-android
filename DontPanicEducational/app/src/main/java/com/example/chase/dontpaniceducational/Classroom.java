@@ -7,6 +7,8 @@ public class Classroom implements Serializable{
     private String classId, schoolId, courseType, courseNumber,
             sectionNumber, courseTitle;
     private ArrayList<Question> questions = new ArrayList<>();
+    private ArrayList<String> topics = new ArrayList<>();
+    private int currentTopic = 0;
 
     public Classroom() {}
 
@@ -64,5 +66,14 @@ public class Classroom implements Serializable{
 
     public void setQuestions(ArrayList<Question> questions) {
         this.questions = questions;
+    }
+
+    public String getTopic() {
+        private String classroomTopic;
+        return classroomTopic;
+    }
+
+    public void setTopics(ArrayList<String> topics) {
+        this.topics = topics;
     }
 }
