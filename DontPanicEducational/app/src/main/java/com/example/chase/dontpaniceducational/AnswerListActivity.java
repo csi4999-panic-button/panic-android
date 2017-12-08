@@ -181,7 +181,7 @@ public class AnswerListActivity extends AppCompatActivity {
                                         }
                                     }
                                     adapter.notifyDataSetChanged();
-                                }
+git                                 }
                             });
                 }
             });
