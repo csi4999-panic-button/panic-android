@@ -146,7 +146,7 @@ public class AnswerListActivity extends AppCompatActivity {
                                     JsonObject jsonQuestionObject, jsonAnswerObject;
                                     JsonElement jsonAnswerElement;
                                     Answer answer = new Answer();
-                                    ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
+                                    ArrayList<Answer> newAnswerArrayList = questionObject.getAnswerList();
                                     ArrayList<String> votesArrayList = new ArrayList<>();
                                     if (e != null) {
                                         Toast.makeText(AnswerListActivity.this, "Try again",
@@ -175,13 +175,14 @@ public class AnswerListActivity extends AppCompatActivity {
                                     }
                                     for(Question question : questions) {
                                         if(question.getQuestionId().matches(questionId)) {
-                                            updatedAnswerArrayList.addAll(question.getAnswerList());
-                                            updatedAnswerArrayList.add(answer);
-                                            question.setAnswerList(updatedAnswerArrayList);
+                                            newAnswerArrayList.clear();
+                                            newAnswerArrayList.addAll(question.getAnswerList());
+                                            newAnswerArrayList.add(answer);
+                                            question.setAnswerList(newAnswerArrayList);
                                         }
                                     }
                                     adapter.notifyDataSetChanged();
-git                                 }
+                                 }
                             });
                 }
             });
@@ -201,9 +202,10 @@ git                                 }
 
     public class CustomAdapter extends BaseAdapter {
 
-        private ArrayList<Answer> updatedAnswerArrayList = new ArrayList<>();
+        private ArrayList<Answer> updatedAnswerArrayList;
 
         public CustomAdapter(Question questionObject) {
+            updatedAnswerArrayList = questionObject.getAnswerList();
             answerArrayList.clear();
             this.updatedAnswerArrayList = questionObject.getAnswerList();
             answerArrayList = this.updatedAnswerArrayList;
