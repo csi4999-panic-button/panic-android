@@ -37,7 +37,8 @@ public class ClassroomListActivity extends AppCompatActivity {
     private JsonObject jsonObject, jsonQuestion, answerJsonObject;
     private Classroom classroomObject;
     private ArrayList<Classroom> classroomObjectsArray;
-    ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray, answerArrayString, voteArray;
+    ArrayList<String> courseTypeArray, courseNumberArray, classTitleArray, questionsArray,
+            answerArrayString, voteArray, topicArrayList;
     ArrayList<Integer> answerArrayInt;
     private ArrayList<Question> questionArrayList;
     private ArrayList<Answer> answerArrayList;
@@ -47,10 +48,11 @@ public class ClassroomListActivity extends AppCompatActivity {
     private ActionBarDrawerToggle barDrawerToggle;
     FloatingActionButton optionsButton, joinClassButton, createClassButton;
     private LinearLayout joinLayout, createLayout;
-    private JsonArray classQuestionJsonArray, classAnswerJsonArray, questionVotesArray;
+    private JsonArray classQuestionJsonArray, classAnswerJsonArray, questionVotesArray,
+            topicsJsonArray;
     private Question questionObject;
     private Answer answerObject;
-
+    private int currentTopic = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +119,11 @@ public class ClassroomListActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
-                if(id == R.id.account)
-                    Toast.makeText(ClassroomListActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                else if(id == R.id.logout)
-                    Toast.makeText(ClassroomListActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                if(id == R.id.logout) {
+                    Intent intent = new Intent(ClassroomListActivity.this, StartScreenActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 return true;
             }
         });
@@ -149,6 +152,8 @@ public class ClassroomListActivity extends AppCompatActivity {
         answerArrayString = new ArrayList<>();
         voteArray = new ArrayList<>();
         questionVotesArray = new JsonArray();
+        topicsJsonArray = new JsonArray();
+        topicArrayList = new ArrayList<>();
     }
 
     @Override
@@ -278,6 +283,15 @@ public class ClassroomListActivity extends AppCompatActivity {
                                 }
                             }
                             classroomObject.setQuestions(questionArrayList);
+                            if(jsonObject.has("topics")) {
+                                topicsJsonArray = jsonObject.getAsJsonArray("topics");
+                                topicArrayList.clear();
+                                for(JsonElement topic : topicsJsonArray)
+                                    topicArrayList.add(topic.getAsString());
+                            }
+                            if(jsonObject.has("currentTopic"))
+                                currentTopic = jsonObject.get("currentTopic").getAsInt();
+                            classroomObject.setTopics(topicArrayList, currentTopic);
                             classroomObjectsArray.add(classroomObject);
                         }
                         adapter.notifyDataSetChanged();

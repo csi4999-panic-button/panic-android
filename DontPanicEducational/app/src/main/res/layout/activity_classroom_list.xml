@@ -14,9 +14,8 @@
 
         <ListView
             android:id="@+id/listView_classesJoined"
-            android:layout_width="fill_parent"
-            android:layout_height="328dp"
-            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -36,7 +35,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+            app:srcCompat="@drawable/ic_add_circle_white_24dp"/>
 
         <LinearLayout
             android:id="@+id/layoutJoinClass"
@@ -54,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Join Class"
-                android:textColor="@color/colorAccent"/>
+                android:textColor="@color/colorPrimaryDark"/>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floatingActionButtonJoinClass"
@@ -65,7 +64,7 @@
                 android:layout_marginStart="8dp"
                 android:clickable="true"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+                app:srcCompat="@drawable/ic_add_circle_white_24dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -85,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Create Class"
-                android:textColor="@color/colorAccent"/>
+                android:textColor="@color/colorPrimaryDark"/>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floatingActionButtonCreateClass"
@@ -96,7 +95,7 @@
                 android:layout_marginStart="8dp"
                 android:clickable="true"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+                app:srcCompat="@drawable/ic_add_circle_white_24dp" />
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 

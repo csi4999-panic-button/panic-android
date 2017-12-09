@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class PanicRoomActivity extends AppCompatActivity implements Serializable {
-    private TextView numberOfPanicStudents;
+    private TextView numberOfPanicStudents, classroomTopic;
     private Socket panicSocket;
     private SharedPreferences mySharedPreferences;
     public static String MY_PREFS = "MY_PREFS";
@@ -73,16 +73,18 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
-                if(id == R.id.account)
-                    Toast.makeText(PanicRoomActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                else if(id == R.id.logout)
-                    Toast.makeText(PanicRoomActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                if(id == R.id.logout) {
+                    Intent intent = new Intent(PanicRoomActivity.this, StartScreenActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 return true;
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = classroomObject.getCourseType();
+        panicClassName = classroomObject.getCourseType().concat(" ").concat(
+                classroomObject.getCourseNumber());
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
@@ -97,12 +99,16 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         apiToken = token;
         token = "Bearer ".concat(token);
         numberOfPanicStudents = (TextView) findViewById(R.id.textView_numberOfPanickedStudents);
+        classroomTopic = (TextView) findViewById(R.id.textView_topic);
+        classroomTopic.setText(classroomObject.getTopic());
         jsonObject = new JsonObject();
         panicSocket.on("panic", panicListener);
         panicSocket.on("connect", connectListener);
         panicSocket.on("login_success", loginListener);
         panicSocket.on("new_question", newQuestionListener);
         panicSocket.on("new_answer", newAnswerListener);
+        panicSocket.on("panic_state_change", panicStateListener);
+        panicSocket.on("topic_change", topicChangeListener);
         panicSocket.connect();
         numberOfPanicStudents.setText("0");
         panicSocket.emit("login", apiToken);
@@ -169,8 +175,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Connected",
-                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -186,8 +190,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Logged In",
-                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -345,6 +347,60 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         }
     };
 
+    private Emitter.Listener panicStateListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            PanicRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String classroomId;
+                    boolean newPanicState;
+                    try {
+                        classroomId = data.getString("classroom");
+                        newPanicState = data.getBoolean("state");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    panicState = newPanicState;
+                    if(panicState) {
+                        numberOfPanicStudents.setTextColor(Color.RED);
+                        panicButton.setText("!");
+                    }
+                    else {
+                        numberOfPanicStudents.setTextColor(Color.parseColor("#FFFFFF"));
+                        panicButton.setText("?");
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener topicChangeListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            PanicRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String classroomId, topic;
+                    boolean first, last;
+                    try {
+                        classroomId = data.getString("classroom");
+                        topic = data.getString("topic");
+                        first = data.getBoolean("first");
+                        last = data.getBoolean("last");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    classroomTopic.setText(topic);
+                }
+            });
+        }
+    };
+
     protected void onStart() {
         super.onStart();
         panicSocket.emit("login", apiToken);
@@ -357,17 +413,8 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
     }
 
     public void panicButtonClick(View view) {
-        panicState = !panicState;
-        if(panicState) {
-            numberOfPanicStudents.setTextColor(Color.RED);
-            panicButton.setText("!");
-        }
-        else {
-            numberOfPanicStudents.setTextColor(Color.parseColor("#FFFFFF"));
-            panicButton.setText("?");
-        }
         jsonObject.addProperty("classroom", classroom);
-        jsonObject.addProperty("state", panicState);
+        jsonObject.addProperty("state", !panicState);
         panicSocket.emit("panic", jsonObject);
     }
 

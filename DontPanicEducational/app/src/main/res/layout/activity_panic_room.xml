@@ -14,13 +14,28 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="30dp">
+            <TextView
+                android:id="@+id/textView_topic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/icons"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <View
                 android:id="@+id/fakeView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:layout_marginTop="30dp"/>
 
             <Button
                 android:id="@+id/button_panicButton"
@@ -33,7 +48,8 @@
                 android:text="@string/panicButton"
                 android:textColor="@color/colorIcons"
                 android:textSize="40sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"/>
 
             <TextView
                 android:id="@+id/textView_numberOfPanickedStudents"
@@ -45,7 +61,8 @@
                 android:gravity="center"
                 android:textColor="@color/colorIcons"
                 android:textSize="40sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="30dp"/>
         </RelativeLayout>
 
         <android.support.design.widget.FloatingActionButton
@@ -61,14 +78,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+            app:srcCompat="@drawable/ic_add_circle_white_24dp" />
 
         <ListView
             android:id="@+id/questionsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="100dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="130dp"
             android:background="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
