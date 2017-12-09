@@ -71,25 +71,26 @@ public class AnswerListActivity extends AppCompatActivity {
         questionObject = (Question) intent.getSerializableExtra("questionObject");
         classroom = (String) intent.getSerializableExtra("classroom");
         questions = (ArrayList<Question>) intent.getSerializableExtra("questionList");
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutPanic);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayoutAnswerList);
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.syncState();
-        NavigationView nav_view = (NavigationView) findViewById(R.id.navViewAnswer);
+        NavigationView nav_view = (NavigationView) findViewById(R.id.navViewAnswerList);
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
-                if(id == R.id.account)
-                    Toast.makeText(AnswerListActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                else if(id == R.id.logout)
-                    Toast.makeText(AnswerListActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                if(id == R.id.logout) {
+                    Intent intent = new Intent(AnswerListActivity.this, StartScreenActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 return true;
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Something");
+        getSupportActionBar().setTitle("Answer List");
         answerButton = (FloatingActionButton) findViewById(R.id.answerFAB);
         answerButton.setOnClickListener(new View.OnClickListener() {
             @Override

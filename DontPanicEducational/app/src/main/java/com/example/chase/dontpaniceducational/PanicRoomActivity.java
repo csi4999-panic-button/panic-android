@@ -73,16 +73,18 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
-                if(id == R.id.account)
-                    Toast.makeText(PanicRoomActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                else if(id == R.id.logout)
-                    Toast.makeText(PanicRoomActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                if(id == R.id.logout) {
+                    Intent intent = new Intent(PanicRoomActivity.this, StartScreenActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
                 return true;
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mySharedPreferences = getSharedPreferences(MY_PREFS, prefMode);
-        panicClassName = classroomObject.getCourseType();
+        panicClassName = classroomObject.getCourseType().concat(" ").concat(
+                classroomObject.getCourseNumber());
         getSupportActionBar().setTitle(panicClassName);
         {
             try {
@@ -98,6 +100,7 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
         token = "Bearer ".concat(token);
         numberOfPanicStudents = (TextView) findViewById(R.id.textView_numberOfPanickedStudents);
         classroomTopic = (TextView) findViewById(R.id.textView_topic);
+        classroomTopic.setText(classroomObject.getTopic());
         jsonObject = new JsonObject();
         panicSocket.on("panic", panicListener);
         panicSocket.on("connect", connectListener);
