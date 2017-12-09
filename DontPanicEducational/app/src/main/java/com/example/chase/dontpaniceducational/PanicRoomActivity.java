@@ -175,8 +175,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Connected",
-                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -192,8 +190,6 @@ public class PanicRoomActivity extends AppCompatActivity implements Serializable
                     } catch (JsonIOException e) {
                         return;
                     }
-                    Toast.makeText(PanicRoomActivity.this, "Logged In",
-                            Toast.LENGTH_SHORT).show();
                 }
             });
         }

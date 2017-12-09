@@ -35,7 +35,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_add_circle_black_24dp"/>
+            app:srcCompat="@drawable/ic_add_circle_white_24dp"/>
 
         <LinearLayout
             android:id="@+id/layoutJoinClass"
@@ -64,7 +64,7 @@
                 android:layout_marginStart="8dp"
                 android:clickable="true"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+                app:srcCompat="@drawable/ic_add_circle_white_24dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -95,7 +95,7 @@
                 android:layout_marginStart="8dp"
                 android:clickable="true"
                 app:fabSize="mini"
-                app:srcCompat="@drawable/ic_add_circle_black_24dp" />
+                app:srcCompat="@drawable/ic_add_circle_white_24dp" />
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 
